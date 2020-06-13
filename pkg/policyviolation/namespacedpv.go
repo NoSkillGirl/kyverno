@@ -2,6 +2,7 @@ package policyviolation
 
 import (
 	"fmt"
+	"github.com/jimlawless/whereami"
 
 	"github.com/go-logr/logr"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
@@ -43,6 +44,7 @@ func newNamespacedPV(log logr.Logger, dclient *client.Client,
 }
 
 func (nspv *namespacedPV) create(pv kyverno.PolicyViolationTemplate) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	newPv := kyverno.PolicyViolation(pv)
 	// PV already exists
 	oldPv, err := nspv.getExisting(newPv)
@@ -59,6 +61,7 @@ func (nspv *namespacedPV) create(pv kyverno.PolicyViolationTemplate) error {
 }
 
 func (nspv *namespacedPV) getExisting(newPv kyverno.PolicyViolation) (*kyverno.PolicyViolation, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := nspv.log.WithValues("namespace", newPv.Namespace, "name", newPv.Name)
 	var err error
 	// use labels
@@ -85,6 +88,7 @@ func (nspv *namespacedPV) getExisting(newPv kyverno.PolicyViolation) (*kyverno.P
 }
 
 func (nspv *namespacedPV) createPV(newPv *kyverno.PolicyViolation) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var err error
 	logger := nspv.log.WithValues("policy", newPv.Spec.Policy, "kind", newPv.Spec.ResourceSpec.Kind, "namespace", newPv.Spec.ResourceSpec.Namespace, "name", newPv.Spec.ResourceSpec.Name)
 	logger.V(4).Info("creating new policy violation")
@@ -126,6 +130,7 @@ func (nspv *namespacedPV) createPV(newPv *kyverno.PolicyViolation) error {
 }
 
 func (nspv *namespacedPV) updatePV(newPv, oldPv *kyverno.PolicyViolation) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := nspv.log.WithValues("policy", newPv.Spec.Policy, "kind", newPv.Spec.ResourceSpec.Kind, "namespace", newPv.Spec.ResourceSpec.Namespace, "name", newPv.Spec.ResourceSpec.Name)
 	var err error
 	// check if there is any update
@@ -151,6 +156,7 @@ func (nspv *namespacedPV) updatePV(newPv, oldPv *kyverno.PolicyViolation) error 
 }
 
 func isEvictedPod(pod map[string]interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	reason, ok, _ := unstructedv1.NestedString(pod, "status", "reason")
 	if !ok {
 		return false

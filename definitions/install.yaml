@@ -229,6 +229,8 @@ spec:
                                   - Equals
                                   - NotEqual
                                   - NotEquals
+                                  - In
+                                  - NotIn
                                   type: string
                                 value:
                                   type: string
@@ -760,7 +762,7 @@ spec:
         env:
         - name: INIT_CONFIG
           value: init-config
-        image: nirmata/kyverno:v1.1.6
+        image: localhost:5000/nirmata/kyverno:latest2
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 4

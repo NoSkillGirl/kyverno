@@ -6,17 +6,20 @@ import (
 	"strconv"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/engine/anchor"
 	"github.com/nirmata/kyverno/pkg/engine/validate"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 func meetConditions(log logr.Logger, resource, overlay interface{}) (string, overlayError) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return checkConditions(log, resource, overlay, "/")
 }
 
 // resource and overlay should be the same type
 func checkConditions(log logr.Logger, resource, overlay interface{}, path string) (string, overlayError) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// overlay has no anchor, return true
 	if !hasNestedAnchors(overlay) {
 		return "", overlayError{}
@@ -51,6 +54,7 @@ func checkConditions(log logr.Logger, resource, overlay interface{}, path string
 }
 
 func checkConditionOnMap(resourceMap, overlayMap map[string]interface{}, path string) (string, overlayError) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	anchors, overlayWithoutAnchor := getAnchorAndElementsFromMap(overlayMap)
 
 	// validate resource with conditions
@@ -68,6 +72,7 @@ func checkConditionOnMap(resourceMap, overlayMap map[string]interface{}, path st
 }
 
 func checkConditionOnArray(resource, overlay []interface{}, path string) (string, overlayError) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if 0 == len(overlay) {
 		log.Log.V(4).Info("Mutate overlay pattern is empty", "path", path)
 		return "", overlayError{}
@@ -83,6 +88,7 @@ func checkConditionOnArray(resource, overlay []interface{}, path string) (string
 }
 
 func validateConditionAnchorMap(resourceMap, anchors map[string]interface{}, path string) (string, overlayError) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for key, overlayValue := range anchors {
 		// skip if key does not have condition anchor
 		if !anchor.IsConditionAnchor(key) {
@@ -111,6 +117,7 @@ func validateConditionAnchorMap(resourceMap, anchors map[string]interface{}, pat
 // overlay - (A): B1
 // resource - A: B2
 func compareOverlay(resource, overlay interface{}, path string) (string, overlayError) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if reflect.TypeOf(resource) != reflect.TypeOf(overlay) {
 		log.Log.V(4).Info("Found anchor on different types of element: overlay %T, resource %T", overlay, resource)
 		return path, newOverlayError(conditionFailure, fmt.Sprintf("Found anchor on different types of element: overlay %T, resource %T", overlay, resource))
@@ -153,6 +160,7 @@ func compareOverlay(resource, overlay interface{}, path string) (string, overlay
 
 // validateNonAnchorOverlayMap validate anchor condition in overlay block without anchor
 func validateNonAnchorOverlayMap(resourceMap, overlayWithoutAnchor map[string]interface{}, path string) (string, overlayError) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// validate resource map (anchors could exist in resource)
 	for key, overlayValue := range overlayWithoutAnchor {
 		curPath := path + key + "/"
@@ -174,6 +182,7 @@ func validateNonAnchorOverlayMap(resourceMap, overlayWithoutAnchor map[string]in
 }
 
 func checkConditionsOnArrayOfSameTypes(resource, overlay []interface{}, path string) (string, overlayError) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch overlay[0].(type) {
 	case map[string]interface{}:
 		return checkConditionsOnArrayOfMaps(resource, overlay, path)
@@ -190,6 +199,7 @@ func checkConditionsOnArrayOfSameTypes(resource, overlay []interface{}, path str
 }
 
 func checkConditionsOnArrayOfMaps(resource, overlay []interface{}, path string) (string, overlayError) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var newPath string
 	var err overlayError
 

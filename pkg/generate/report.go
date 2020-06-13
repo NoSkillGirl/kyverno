@@ -4,12 +4,14 @@ import (
 	"fmt"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/event"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 func reportEvents(log logr.Logger, err error, eventGen event.Interface, gr kyverno.GenerateRequest, resource unstructured.Unstructured) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if err == nil {
 		// Success Events
 		// - resource -> policy rule applied successfully
@@ -23,6 +25,7 @@ func reportEvents(log logr.Logger, err error, eventGen event.Interface, gr kyver
 }
 
 func failedEvents(err error, gr kyverno.GenerateRequest, resource unstructured.Unstructured) []event.Info {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var events []event.Info
 	// Cluster Policy
 	pe := event.Info{}
@@ -48,6 +51,7 @@ func failedEvents(err error, gr kyverno.GenerateRequest, resource unstructured.U
 }
 
 func successEvents(gr kyverno.GenerateRequest, resource unstructured.Unstructured) []event.Info {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var events []event.Info
 	// Cluster Policy
 	pe := event.Info{}

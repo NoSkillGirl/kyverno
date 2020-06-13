@@ -1,7 +1,10 @@
 package webhooks
 
 import (
+	"fmt"
 	"strings"
+
+	"github.com/jimlawless/whereami"
 
 	"github.com/go-logr/logr"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
@@ -12,6 +15,7 @@ import (
 
 //generateEvents generates event info for the engine responses
 func generateEvents(engineResponses []response.EngineResponse, blocked, onUpdate bool, log logr.Logger) []event.Info {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var events []event.Info
 	// Scenario 1
 	// - Admission-Response is SUCCESS && CREATE

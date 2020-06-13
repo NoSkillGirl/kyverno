@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/config"
 	client "github.com/nirmata/kyverno/pkg/dclient"
 	admregapi "k8s.io/api/admissionregistration/v1beta1"
@@ -49,6 +50,7 @@ func NewWebhookRegistrationClient(
 
 // Register creates admission webhooks configs on cluster
 func (wrc *WebhookRegistrationClient) Register() error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := wrc.log.WithName("Register")
 	if wrc.serverIP != "" {
 		logger.V(4).Info("Registering webhook", "url", fmt.Sprintf("https://%s", wrc.serverIP))
@@ -83,6 +85,7 @@ func (wrc *WebhookRegistrationClient) Register() error {
 // RemoveWebhookConfigurations removes webhook configurations for reosurces and policy
 // called during webhook server shutdown
 func (wrc *WebhookRegistrationClient) RemoveWebhookConfigurations(cleanUp chan<- struct{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	//TODO: dupliate, but a placeholder to perform more error handlind during cleanup
 	wrc.removeWebhookConfigurations()
 	// close channel to notify cleanup is complete
@@ -93,6 +96,7 @@ func (wrc *WebhookRegistrationClient) RemoveWebhookConfigurations(cleanUp chan<-
 // used to forward request to kyverno webhooks to apply policeis
 // Mutationg webhook is be used for Mutating purpose
 func (wrc *WebhookRegistrationClient) CreateResourceMutatingWebhookConfiguration() error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := wrc.log
 	var caData []byte
 	var config *admregapi.MutatingWebhookConfiguration
@@ -126,6 +130,7 @@ func (wrc *WebhookRegistrationClient) CreateResourceMutatingWebhookConfiguration
 
 //CreateResourceValidatingWebhookConfiguration ...
 func (wrc *WebhookRegistrationClient) CreateResourceValidatingWebhookConfiguration() error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var caData []byte
 	var config *admregapi.ValidatingWebhookConfiguration
 
@@ -157,6 +162,7 @@ func (wrc *WebhookRegistrationClient) CreateResourceValidatingWebhookConfigurati
 
 //registerPolicyValidatingWebhookConfiguration create a Validating webhook configuration for Policy CRD
 func (wrc *WebhookRegistrationClient) createPolicyValidatingWebhookConfiguration() error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var caData []byte
 	var config *admregapi.ValidatingWebhookConfiguration
 
@@ -187,6 +193,7 @@ func (wrc *WebhookRegistrationClient) createPolicyValidatingWebhookConfiguration
 }
 
 func (wrc *WebhookRegistrationClient) createPolicyMutatingWebhookConfiguration() error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var caData []byte
 	var config *admregapi.MutatingWebhookConfiguration
 	// read CA data from
@@ -215,6 +222,7 @@ func (wrc *WebhookRegistrationClient) createPolicyMutatingWebhookConfiguration()
 }
 
 func (wrc *WebhookRegistrationClient) createVerifyMutatingWebhookConfiguration() error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var caData []byte
 	var config *admregapi.MutatingWebhookConfiguration
 
@@ -248,6 +256,7 @@ func (wrc *WebhookRegistrationClient) createVerifyMutatingWebhookConfiguration()
 // This function does not fail on error:
 // Register will fail if the config exists, so there is no need to fail on error
 func (wrc *WebhookRegistrationClient) removeWebhookConfigurations() {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	startTime := time.Now()
 	wrc.log.Info("removing prior webhook configurations")
 	defer func() {
@@ -276,12 +285,14 @@ func (wrc *WebhookRegistrationClient) removeWebhookConfigurations() {
 // wrapper to handle wait group
 // TODO: re-work with RemoveResourceMutatingWebhookConfiguration, as the only difference is wg handling
 func (wrc *WebhookRegistrationClient) removeResourceMutatingWebhookConfiguration(wg *sync.WaitGroup) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	defer wg.Done()
 	if err := wrc.RemoveResourceMutatingWebhookConfiguration(); err != nil {
 		wrc.log.Error(err, "failed to remove resource mutating webhook configuration")
 	}
 }
 func (wrc *WebhookRegistrationClient) removeResourceValidatingWebhookConfiguration(wg *sync.WaitGroup) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	defer wg.Done()
 	if err := wrc.RemoveResourceValidatingWebhookConfiguration(); err != nil {
 		wrc.log.Error(err, "failed to remove resource validation webhook configuration")
@@ -289,6 +300,7 @@ func (wrc *WebhookRegistrationClient) removeResourceValidatingWebhookConfigurati
 }
 
 func (wrc *WebhookRegistrationClient) removePolicyMutatingWebhookConfiguration(wg *sync.WaitGroup) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	defer wg.Done()
 
 	var mutatingConfig string
@@ -314,6 +326,7 @@ func (wrc *WebhookRegistrationClient) removePolicyMutatingWebhookConfiguration(w
 }
 
 func (wrc *WebhookRegistrationClient) removePolicyValidatingWebhookConfiguration(wg *sync.WaitGroup) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	defer wg.Done()
 
 	var validatingConfig string
@@ -341,5 +354,6 @@ func (wrc *WebhookRegistrationClient) removePolicyValidatingWebhookConfiguration
 
 // GetWebhookTimeOut returns the value of webhook timeout
 func (wrc *WebhookRegistrationClient) GetWebhookTimeOut() time.Duration {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return time.Duration(wrc.timeoutSeconds)
 }

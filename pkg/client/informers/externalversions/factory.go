@@ -23,6 +23,8 @@ import (
 	sync "sync"
 	time "time"
 
+	"fmt"
+	"github.com/jimlawless/whereami"
 	versioned "github.com/nirmata/kyverno/pkg/client/clientset/versioned"
 	internalinterfaces "github.com/nirmata/kyverno/pkg/client/informers/externalversions/internalinterfaces"
 	kyverno "github.com/nirmata/kyverno/pkg/client/informers/externalversions/kyverno"
@@ -52,6 +54,7 @@ type sharedInformerFactory struct {
 // WithCustomResyncConfig sets a custom resync period for the specified informer types.
 func WithCustomResyncConfig(resyncConfig map[v1.Object]time.Duration) SharedInformerOption {
 	return func(factory *sharedInformerFactory) *sharedInformerFactory {
+		fmt.Printf("%s\n", whereami.WhereAmI())
 		for k, v := range resyncConfig {
 			factory.customResync[reflect.TypeOf(k)] = v
 		}
@@ -62,6 +65,7 @@ func WithCustomResyncConfig(resyncConfig map[v1.Object]time.Duration) SharedInfo
 // WithTweakListOptions sets a custom filter on all listers of the configured SharedInformerFactory.
 func WithTweakListOptions(tweakListOptions internalinterfaces.TweakListOptionsFunc) SharedInformerOption {
 	return func(factory *sharedInformerFactory) *sharedInformerFactory {
+		fmt.Printf("%s\n", whereami.WhereAmI())
 		factory.tweakListOptions = tweakListOptions
 		return factory
 	}
@@ -70,6 +74,7 @@ func WithTweakListOptions(tweakListOptions internalinterfaces.TweakListOptionsFu
 // WithNamespace limits the SharedInformerFactory to the specified namespace.
 func WithNamespace(namespace string) SharedInformerOption {
 	return func(factory *sharedInformerFactory) *sharedInformerFactory {
+		fmt.Printf("%s\n", whereami.WhereAmI())
 		factory.namespace = namespace
 		return factory
 	}
@@ -123,6 +128,7 @@ func (f *sharedInformerFactory) Start(stopCh <-chan struct{}) {
 // WaitForCacheSync waits for all started informers' cache were synced.
 func (f *sharedInformerFactory) WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool {
 	informers := func() map[reflect.Type]cache.SharedIndexInformer {
+		fmt.Printf("%s\n", whereami.WhereAmI())
 		f.lock.Lock()
 		defer f.lock.Unlock()
 
@@ -160,6 +166,7 @@ func (f *sharedInformerFactory) InformerFor(obj runtime.Object, newFunc internal
 	}
 
 	informer = newFunc(f.client, resyncPeriod)
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	f.informers[informerType] = informer
 
 	return informer

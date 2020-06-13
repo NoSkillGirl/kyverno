@@ -1,6 +1,10 @@
 package policystatus
 
-import "sync"
+import (
+	"github.com/jimlawless/whereami"
+	"sync"
+	"fmt"
+)
 
 // keyToMutex allows status to be updated
 //for different policies at the same time
@@ -12,6 +16,7 @@ type keyToMutex struct {
 }
 
 func newKeyToMutex() *keyToMutex {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return &keyToMutex{
 		mu:    sync.RWMutex{},
 		keyMu: make(map[string]*sync.RWMutex),
@@ -19,6 +24,7 @@ func newKeyToMutex() *keyToMutex {
 }
 
 func (k *keyToMutex) Get(key string) *sync.RWMutex {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	k.mu.Lock()
 	defer k.mu.Unlock()
 	mutex := k.keyMu[key]

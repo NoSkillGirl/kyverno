@@ -7,11 +7,13 @@ import (
 	"strconv"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/engine/context"
 )
 
 //NewNotEqualHandler returns handler to manage NotEqual operations
 func NewNotEqualHandler(log logr.Logger, ctx context.EvalInterface, subHandler VariableSubstitutionHandler) OperatorHandler {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return NotEqualHandler{
 		ctx:        ctx,
 		subHandler: subHandler,
@@ -28,6 +30,7 @@ type NotEqualHandler struct {
 
 //Evaluate evaluates expression with NotEqual Operator
 func (neh NotEqualHandler) Evaluate(key, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var err error
 	//TODO: decouple variables from evaluation
 	// substitute the variables
@@ -64,6 +67,7 @@ func (neh NotEqualHandler) Evaluate(key, value interface{}) bool {
 }
 
 func (neh NotEqualHandler) validateValueWithSlicePattern(key []interface{}, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if val, ok := value.([]interface{}); ok {
 		return !reflect.DeepEqual(key, val)
 	}
@@ -72,6 +76,7 @@ func (neh NotEqualHandler) validateValueWithSlicePattern(key []interface{}, valu
 }
 
 func (neh NotEqualHandler) validateValueWithMapPattern(key map[string]interface{}, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if val, ok := value.(map[string]interface{}); ok {
 		return !reflect.DeepEqual(key, val)
 	}
@@ -80,6 +85,7 @@ func (neh NotEqualHandler) validateValueWithMapPattern(key map[string]interface{
 }
 
 func (neh NotEqualHandler) validateValuewithStringPattern(key string, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if val, ok := value.(string); ok {
 		return key != val
 	}
@@ -88,6 +94,7 @@ func (neh NotEqualHandler) validateValuewithStringPattern(key string, value inte
 }
 
 func (neh NotEqualHandler) validateValuewithFloatPattern(key float64, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch typedValue := value.(type) {
 	case int:
 		// check that float has not fraction
@@ -119,6 +126,7 @@ func (neh NotEqualHandler) validateValuewithFloatPattern(key float64, value inte
 }
 
 func (neh NotEqualHandler) validateValuewithBoolPattern(key bool, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	typedValue, ok := value.(bool)
 	if !ok {
 		neh.log.Info("Expected type bool", "value", value, "type", fmt.Sprintf("%T", value))
@@ -128,6 +136,7 @@ func (neh NotEqualHandler) validateValuewithBoolPattern(key bool, value interfac
 }
 
 func (neh NotEqualHandler) validateValuewithIntPattern(key int64, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch typedValue := value.(type) {
 	case int:
 		return int64(typedValue) != key

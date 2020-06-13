@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	dclient "github.com/nirmata/kyverno/pkg/dclient"
 	"github.com/nirmata/kyverno/pkg/engine"
@@ -17,6 +18,7 @@ import (
 )
 
 func (c *Controller) processGR(gr *kyverno.GenerateRequest) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log.WithValues("name", gr.Name, "policy", gr.Spec.Policy, "kind", gr.Spec.Resource.Kind, "namespace", gr.Spec.Resource.Namespace, "name", gr.Spec.Resource.Name)
 	var err error
 	var resource *unstructured.Unstructured
@@ -37,6 +39,7 @@ func (c *Controller) processGR(gr *kyverno.GenerateRequest) error {
 }
 
 func (c *Controller) applyGenerate(resource unstructured.Unstructured, gr kyverno.GenerateRequest) ([]kyverno.ResourceSpec, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log.WithValues("name", gr.Name, "policy", gr.Spec.Policy, "kind", gr.Spec.Resource.Kind, "namespace", gr.Spec.Resource.Namespace, "name", gr.Spec.Resource.Name)
 	// Get the list of rules to be applied
 	// get policy
@@ -87,6 +90,7 @@ func (c *Controller) applyGenerate(resource unstructured.Unstructured, gr kyvern
 }
 
 func updateStatus(statusControl StatusControlInterface, gr kyverno.GenerateRequest, err error, genResources []kyverno.ResourceSpec) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if err != nil {
 		return statusControl.Failed(gr, err.Error(), genResources)
 	}
@@ -96,6 +100,7 @@ func updateStatus(statusControl StatusControlInterface, gr kyverno.GenerateReque
 }
 
 func (c *Controller) applyGeneratePolicy(log logr.Logger, policyContext engine.PolicyContext, gr kyverno.GenerateRequest) ([]kyverno.ResourceSpec, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// List of generatedResources
 	var genResources []kyverno.ResourceSpec
 	// Get the response as the actions to be performed on the resource
@@ -141,10 +146,12 @@ type generateSyncStats struct {
 }
 
 func (vc generateSyncStats) PolicyName() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return vc.policyName
 }
 
 func (vc generateSyncStats) UpdateStatus(status kyverno.PolicyStatus) kyverno.PolicyStatus {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	for i := range status.Rules {
 		if executionTime, exist := vc.ruleNameToProcessingTime[status.Rules[i].Name]; exist {
@@ -163,6 +170,7 @@ func (vc generateSyncStats) UpdateStatus(status kyverno.PolicyStatus) kyverno.Po
 }
 
 func updateGenerateExecutionTime(newTime time.Duration, oldAverageTimeString string, averageOver int64) time.Duration {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if averageOver == 0 {
 		return newTime
 	}
@@ -174,6 +182,7 @@ func updateGenerateExecutionTime(newTime time.Duration, oldAverageTimeString str
 }
 
 func applyRule(log logr.Logger, client *dclient.Client, rule kyverno.Rule, resource unstructured.Unstructured, ctx context.EvalInterface, processExisting bool) (kyverno.ResourceSpec, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var rdata map[string]interface{}
 	var err error
 	var mode ResourceMode
@@ -283,6 +292,7 @@ func applyRule(log logr.Logger, client *dclient.Client, rule kyverno.Rule, resou
 }
 
 func manageData(log logr.Logger, kind, namespace, name string, data map[string]interface{}, client *dclient.Client, resource unstructured.Unstructured) (map[string]interface{}, ResourceMode, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// check if resource to be generated exists
 	obj, err := client.GetResource(kind, namespace, name)
 	if apierrors.IsNotFound(err) {
@@ -306,6 +316,7 @@ func manageData(log logr.Logger, kind, namespace, name string, data map[string]i
 }
 
 func manageClone(log logr.Logger, kind, namespace, name string, clone map[string]interface{}, client *dclient.Client, resource unstructured.Unstructured) (map[string]interface{}, ResourceMode, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// check if resource to be generated exists
 	_, err := client.GetResource(kind, namespace, name)
 	if err == nil {
@@ -355,6 +366,7 @@ const (
 )
 
 func checkResource(log logr.Logger, newResourceSpec interface{}, resource *unstructured.Unstructured) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// check if the resource spec if a subset of the resource
 	if path, err := validate.ValidateResourceWithPattern(log, resource.Object, newResourceSpec); err != nil {
 		log.Error(err, "Failed to match the resource ", "path", path)
@@ -364,6 +376,7 @@ func checkResource(log logr.Logger, newResourceSpec interface{}, resource *unstr
 }
 
 func getUnstrRule(rule *kyverno.Generation) (*unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	ruleData, err := json.Marshal(rule)
 	if err != nil {
 		return nil, err
@@ -373,6 +386,7 @@ func getUnstrRule(rule *kyverno.Generation) (*unstructured.Unstructured, error) 
 
 //ConvertToUnstructured converts the resource to unstructured format
 func ConvertToUnstructured(data []byte) (*unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	resource := &unstructured.Unstructured{}
 	err := resource.UnmarshalJSON(data)
 	if err != nil {

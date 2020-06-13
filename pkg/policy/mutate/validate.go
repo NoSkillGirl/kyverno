@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/engine/anchor"
 	"github.com/nirmata/kyverno/pkg/policy/common"
@@ -17,6 +18,7 @@ type Mutate struct {
 
 //NewMutateFactory returns a new instance of Mutate validation checker
 func NewMutateFactory(rule kyverno.Mutation) *Mutate {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	m := Mutate{
 		rule: rule,
 	}
@@ -25,6 +27,7 @@ func NewMutateFactory(rule kyverno.Mutation) *Mutate {
 
 //Validate validates the 'mutate' rule
 func (m *Mutate) Validate() (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	rule := m.rule
 	// JSON Patches
 	if len(rule.Patches) != 0 {
@@ -46,6 +49,7 @@ func (m *Mutate) Validate() (string, error) {
 
 // Validate if all mandatory PolicyPatch fields are set
 func validatePatch(pp kyverno.Patch) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if pp.Path == "" {
 		return errors.New("JSONPatch field 'path' is mandatory")
 	}

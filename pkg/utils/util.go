@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"github.com/jimlawless/whereami"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -21,6 +22,7 @@ import (
 
 //Contains Check if strint is contained in a list of string
 func contains(list []string, element string, fn func(string, string) bool) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, e := range list {
 		if fn(e, element) {
 			return true
@@ -31,24 +33,29 @@ func contains(list []string, element string, fn func(string, string) bool) bool 
 
 //ContainsNamepace check if namespace satisfies any list of pattern(regex)
 func ContainsNamepace(patterns []string, ns string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return contains(patterns, ns, compareNamespaces)
 }
 
 //ContainsString check if the string is contains in a list
 func ContainsString(list []string, element string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return contains(list, element, compareString)
 }
 
 func compareNamespaces(pattern, ns string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return wildcard.Match(pattern, ns)
 }
 
 func compareString(str, name string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return str == name
 }
 
 //NewKubeClient returns a new kubernetes client
 func NewKubeClient(config *rest.Config) (kubernetes.Interface, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	kclient, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, err
@@ -58,6 +65,7 @@ func NewKubeClient(config *rest.Config) (kubernetes.Interface, error) {
 
 //Btoi converts boolean to int
 func Btoi(b bool) int {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if b {
 		return 1
 	}
@@ -66,6 +74,7 @@ func Btoi(b bool) int {
 
 //CRDInstalled to check if the CRD is installed or not
 func CRDInstalled(discovery client.IDiscovery, log logr.Logger) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := log.WithName("CRDInstalled")
 	check := func(kind string) bool {
 		gvr := discovery.GetGVRFromKind(kind)
@@ -85,6 +94,7 @@ func CRDInstalled(discovery client.IDiscovery, log logr.Logger) bool {
 //CleanupOldCrd deletes any existing NamespacedPolicyViolation resources in cluster
 // If resource violates policy, new Violations will be generated
 func CleanupOldCrd(client *dclient.Client, log logr.Logger) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := log.WithName("CleanupOldCrd")
 	gvr := client.DiscoveryClient.GetGVRFromKind("NamespacedPolicyViolation")
 	if !reflect.DeepEqual(gvr, (schema.GroupVersionResource{})) {
@@ -96,6 +106,7 @@ func CleanupOldCrd(client *dclient.Client, log logr.Logger) {
 
 // extracts the new and old resource as unstructured
 func ExtractResources(newRaw []byte, request *v1beta1.AdmissionRequest) (unstructured.Unstructured, unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var emptyResource unstructured.Unstructured
 	var newResource unstructured.Unstructured
 	var oldResource unstructured.Unstructured
@@ -127,6 +138,7 @@ func ExtractResources(newRaw []byte, request *v1beta1.AdmissionRequest) (unstruc
 
 // convertResource converts raw bytes to an unstructured object
 func ConvertResource(raw []byte, group, version, kind, namespace string) (unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	obj, err := engineutils.ConvertToUnstructured(raw)
 	if err != nil {
 		return unstructured.Unstructured{}, fmt.Errorf("failed to convert raw to unstructured: %v", err)
@@ -139,6 +151,7 @@ func ConvertResource(raw []byte, group, version, kind, namespace string) (unstru
 
 // HigherThanKubernetesVersion compare kuberneates client version to user given version
 func HigherThanKubernetesVersion(client *client.Client, log logr.Logger, k8smajor, k8sminor, k8ssub int) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := log.WithName("CompareKubernetesVersion")
 	serverVersion, err := client.DiscoveryClient.GetServerVersion()
 	if err != nil {
@@ -175,6 +188,7 @@ func HigherThanKubernetesVersion(client *client.Client, log logr.Logger, k8smajo
 }
 
 func SliceContains(slice []string, values ...string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	var sliceElementsMap = make(map[string]bool, len(slice))
 	for _, sliceElement := range slice {

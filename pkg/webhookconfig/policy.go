@@ -2,6 +2,7 @@ package webhookconfig
 
 import (
 	"fmt"
+	"github.com/jimlawless/whereami"
 
 	"github.com/nirmata/kyverno/pkg/config"
 	admregapi "k8s.io/api/admissionregistration/v1beta1"
@@ -9,6 +10,7 @@ import (
 )
 
 func (wrc *WebhookRegistrationClient) contructPolicyValidatingWebhookConfig(caData []byte) *admregapi.ValidatingWebhookConfiguration {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	return &admregapi.ValidatingWebhookConfiguration{
 		ObjectMeta: v1.ObjectMeta{
@@ -34,6 +36,7 @@ func (wrc *WebhookRegistrationClient) contructPolicyValidatingWebhookConfig(caDa
 }
 
 func (wrc *WebhookRegistrationClient) contructDebugPolicyValidatingWebhookConfig(caData []byte) *admregapi.ValidatingWebhookConfiguration {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := wrc.log
 	url := fmt.Sprintf("https://%s%s", wrc.serverIP, config.PolicyValidatingWebhookServicePath)
 	logger.V(4).Info("Debug PolicyValidatingWebhookConfig is registered with url ", "url", url)
@@ -59,6 +62,7 @@ func (wrc *WebhookRegistrationClient) contructDebugPolicyValidatingWebhookConfig
 }
 
 func (wrc *WebhookRegistrationClient) contructPolicyMutatingWebhookConfig(caData []byte) *admregapi.MutatingWebhookConfiguration {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return &admregapi.MutatingWebhookConfiguration{
 		ObjectMeta: v1.ObjectMeta{
 			Name: config.PolicyMutatingWebhookConfigurationName,
@@ -82,6 +86,7 @@ func (wrc *WebhookRegistrationClient) contructPolicyMutatingWebhookConfig(caData
 	}
 }
 func (wrc *WebhookRegistrationClient) contructDebugPolicyMutatingWebhookConfig(caData []byte) *admregapi.MutatingWebhookConfiguration {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := wrc.log
 	url := fmt.Sprintf("https://%s%s", wrc.serverIP, config.PolicyMutatingWebhookServicePath)
 	logger.V(4).Info("Debug PolicyMutatingWebhookConfig is registered with url ", "url", url)

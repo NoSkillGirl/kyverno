@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	kyvernolister "github.com/nirmata/kyverno/pkg/client/listers/kyverno/v1"
 	dclient "github.com/nirmata/kyverno/pkg/dclient"
 	"github.com/nirmata/kyverno/pkg/event"
@@ -28,6 +29,7 @@ type LastReqTime struct {
 
 //Time returns the lastrequest time
 func (t *LastReqTime) Time() time.Time {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 	return t.t
@@ -35,6 +37,7 @@ func (t *LastReqTime) Time() time.Time {
 
 //SetTime updates the lastrequest time
 func (t *LastReqTime) SetTime(tm time.Time) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -43,6 +46,7 @@ func (t *LastReqTime) SetTime(tm time.Time) {
 
 //NewLastReqTime returns a new instance of LastRequestTime store
 func NewLastReqTime(log logr.Logger) *LastReqTime {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return &LastReqTime{
 		t:   time.Now(),
 		log: log,
@@ -50,6 +54,7 @@ func NewLastReqTime(log logr.Logger) *LastReqTime {
 }
 
 func checkIfPolicyWithMutateAndGenerateExists(pLister kyvernolister.ClusterPolicyLister, log logr.Logger) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	policies, err := pLister.ListResources(labels.NewSelector())
 	if err != nil {
 		log.Error(err, "failed to list cluster policies")
@@ -68,6 +73,7 @@ func checkIfPolicyWithMutateAndGenerateExists(pLister kyvernolister.ClusterPolic
 
 //Run runs the checker and verify the resource update
 func (t *LastReqTime) Run(pLister kyvernolister.ClusterPolicyLister, eventGen event.Interface, client *dclient.Client, defaultResync time.Duration, deadline time.Duration, stopCh <-chan struct{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := t.log
 	logger.V(4).Info("starting default resync for webhook checker", "resyncTime", defaultResync)
 	maxDeadline := deadline * time.Duration(MaxRetryCount)

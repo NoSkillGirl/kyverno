@@ -1,15 +1,19 @@
 package webhookconfig
 
 import (
+	"github.com/jimlawless/whereami"
 	"io/ioutil"
 
 	"github.com/nirmata/kyverno/pkg/config"
 	admregapi "k8s.io/api/admissionregistration/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	rest "k8s.io/client-go/rest"
+
+	"fmt"
 )
 
 func (wrc *WebhookRegistrationClient) readCaData() []byte {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := wrc.log
 	var caData []byte
 	// Check if ca is defined in the secret tls-ca
@@ -30,6 +34,7 @@ func (wrc *WebhookRegistrationClient) readCaData() []byte {
 
 // ExtractCA used for extraction CA from config
 func extractCA(config *rest.Config) (result []byte) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	fileName := config.TLSClientConfig.CAFile
 
 	if fileName != "" {
@@ -46,6 +51,7 @@ func extractCA(config *rest.Config) (result []byte) {
 }
 
 func (wrc *WebhookRegistrationClient) constructOwner() v1.OwnerReference {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := wrc.log
 	kubePolicyDeployment, err := wrc.client.GetKubePolicyDeployment()
 
@@ -64,6 +70,7 @@ func (wrc *WebhookRegistrationClient) constructOwner() v1.OwnerReference {
 
 // debug mutating webhook
 func generateDebugMutatingWebhook(name, url string, caData []byte, validate bool, timeoutSeconds int32, resource, apiGroups, apiVersions string, operationTypes []admregapi.OperationType) admregapi.MutatingWebhook {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	sideEffect := admregapi.SideEffectClassNoneOnDryRun
 	failurePolicy := admregapi.Ignore
 	return admregapi.MutatingWebhook{
@@ -96,6 +103,7 @@ func generateDebugMutatingWebhook(name, url string, caData []byte, validate bool
 }
 
 func generateDebugValidatingWebhook(name, url string, caData []byte, validate bool, timeoutSeconds int32, resource, apiGroups, apiVersions string, operationTypes []admregapi.OperationType) admregapi.ValidatingWebhook {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	sideEffect := admregapi.SideEffectClassNoneOnDryRun
 	failurePolicy := admregapi.Ignore
 	return admregapi.ValidatingWebhook{
@@ -128,6 +136,7 @@ func generateDebugValidatingWebhook(name, url string, caData []byte, validate bo
 }
 
 // func generateWebhook(name, servicePath string, caData []byte, validation bool, timeoutSeconds int32, resource, apiGroups, apiVersions string, operationTypes []admregapi.OperationType) admregapi.Webhook {
+//	fmt.Printf("%s\n", whereami.WhereAmI())
 // 	sideEffect := admregapi.SideEffectClassNoneOnDryRun
 // 	failurePolicy := admregapi.Ignore
 // 	return admregapi.Webhook{
@@ -165,6 +174,7 @@ func generateDebugValidatingWebhook(name, url string, caData []byte, validate bo
 
 // mutating webhook
 func generateMutatingWebhook(name, servicePath string, caData []byte, validation bool, timeoutSeconds int32, resource, apiGroups, apiVersions string, operationTypes []admregapi.OperationType) admregapi.MutatingWebhook {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	sideEffect := admregapi.SideEffectClassNoneOnDryRun
 	failurePolicy := admregapi.Ignore
 	return admregapi.MutatingWebhook{
@@ -202,6 +212,7 @@ func generateMutatingWebhook(name, servicePath string, caData []byte, validation
 
 // validating webhook
 func generateValidatingWebhook(name, servicePath string, caData []byte, validation bool, timeoutSeconds int32, resource, apiGroups, apiVersions string, operationTypes []admregapi.OperationType) admregapi.ValidatingWebhook {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	sideEffect := admregapi.SideEffectClassNoneOnDryRun
 	failurePolicy := admregapi.Ignore
 	return admregapi.ValidatingWebhook{

@@ -1,8 +1,11 @@
 package signal
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
+
+	"github.com/jimlawless/whereami"
 )
 
 var onlyOneSignalHandler = make(chan struct{})
@@ -12,6 +15,7 @@ var shutdownHandler chan os.Signal
 // which is closed on one of these signals. If a second signal is caught, the program
 // is terminated with exit code 1.
 func SetupSignalHandler() <-chan struct{} {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	close(onlyOneSignalHandler) // panics when called twice
 
 	shutdownHandler = make(chan os.Signal, 2)
@@ -31,6 +35,7 @@ func SetupSignalHandler() <-chan struct{} {
 // RequestShutdown emulates a received event that is considered as shutdown signal (SIGTERM/SIGINT)
 // This returns whether a handler was notified
 func RequestShutdown() bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if shutdownHandler != nil {
 		select {
 		case shutdownHandler <- shutdownSignals[0]:

@@ -1,5 +1,10 @@
 package operator
 
+import (
+	"fmt"
+	"github.com/jimlawless/whereami"
+)
+
 // Operator is string alias that represents selection operators enum
 type Operator string
 
@@ -23,6 +28,7 @@ const ReferenceSign Operator = "$()"
 
 // GetOperatorFromStringPattern parses opeartor from pattern
 func GetOperatorFromStringPattern(pattern string) Operator {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if len(pattern) < 2 {
 		return Equal
 	}

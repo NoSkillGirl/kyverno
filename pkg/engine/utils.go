@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/utils"
 	authenticationv1 "k8s.io/api/authentication/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -29,6 +30,7 @@ type EngineStats struct {
 }
 
 func checkKind(kinds []string, resourceKind string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, kind := range kinds {
 		if resourceKind == kind {
 			return true
@@ -39,10 +41,12 @@ func checkKind(kinds []string, resourceKind string) bool {
 }
 
 func checkName(name, resourceName string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return wildcard.Match(name, resourceName)
 }
 
 func checkNameSpace(namespaces []string, resourceNameSpace string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, namespace := range namespaces {
 		if wildcard.Match(namespace, resourceNameSpace) {
 			return true
@@ -52,6 +56,7 @@ func checkNameSpace(namespaces []string, resourceNameSpace string) bool {
 }
 
 func checkSelector(labelSelector *metav1.LabelSelector, resourceLabels map[string]string) (bool, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	selector, err := metav1.LabelSelectorAsSelector(labelSelector)
 	if err != nil {
 		log.Log.Error(err, "failed to build label selector")
@@ -66,6 +71,7 @@ func checkSelector(labelSelector *metav1.LabelSelector, resourceLabels map[strin
 }
 
 func doesResourceMatchConditionBlock(conditionBlock kyverno.ResourceDescription, userInfo kyverno.UserInfo, admissionInfo kyverno.RequestInfo, resource unstructured.Unstructured) []error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var errs []error
 	if len(conditionBlock.Kinds) > 0 {
 		if !checkKind(conditionBlock.Kinds, resource.GetKind()) {
@@ -118,6 +124,7 @@ func doesResourceMatchConditionBlock(conditionBlock kyverno.ResourceDescription,
 
 // matchSubjects return true if one of ruleSubjects exist in userInfo
 func matchSubjects(ruleSubjects []rbacv1.Subject, userInfo authenticationv1.UserInfo) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	const SaPrefix = "system:serviceaccount:"
 
 	userGroups := append(userInfo.Groups, userInfo.Username)
@@ -151,6 +158,7 @@ func matchSubjects(ruleSubjects []rbacv1.Subject, userInfo authenticationv1.User
 
 //MatchesResourceDescription checks if the resource matches resource description of the rule or not
 func MatchesResourceDescription(resourceRef unstructured.Unstructured, ruleRef kyverno.Rule, admissionInfoRef kyverno.RequestInfo) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	rule := *ruleRef.DeepCopy()
 	resource := *resourceRef.DeepCopy()
 	admissionInfo := *admissionInfoRef.DeepCopy()
@@ -194,6 +202,7 @@ func MatchesResourceDescription(resourceRef unstructured.Unstructured, ruleRef k
 	return nil
 }
 func copyConditions(original []kyverno.Condition) []kyverno.Condition {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var copy []kyverno.Condition
 	for _, condition := range original {
 		copy = append(copy, *condition.DeepCopy())

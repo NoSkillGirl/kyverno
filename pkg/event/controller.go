@@ -1,7 +1,10 @@
 package event
 
 import (
+	"fmt"
+
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 
 	"github.com/nirmata/kyverno/pkg/client/clientset/versioned/scheme"
 	kyvernoinformer "github.com/nirmata/kyverno/pkg/client/informers/externalversions/kyverno/v1"
@@ -44,6 +47,7 @@ type Interface interface {
 
 //NewEventGenerator to generate a new event controller
 func NewEventGenerator(client *client.Client, pInformer kyvernoinformer.ClusterPolicyInformer, log logr.Logger) *Generator {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	gen := Generator{
 		client:               client,
@@ -59,6 +63,7 @@ func NewEventGenerator(client *client.Client, pInformer kyvernoinformer.ClusterP
 }
 
 func initRecorder(client *client.Client, eventSource Source, log logr.Logger) record.EventRecorder {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// Initliaze Event Broadcaster
 	err := scheme.AddToScheme(scheme.Scheme)
 	if err != nil {
@@ -83,6 +88,7 @@ func initRecorder(client *client.Client, eventSource Source, log logr.Logger) re
 
 //Add queues an event for generation
 func (gen *Generator) Add(infos ...Info) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := gen.log
 	for _, info := range infos {
 		if info.Name == "" {
@@ -97,6 +103,7 @@ func (gen *Generator) Add(infos ...Info) {
 
 // Run begins generator
 func (gen *Generator) Run(workers int, stopCh <-chan struct{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := gen.log
 	defer utilruntime.HandleCrash()
 
@@ -114,11 +121,13 @@ func (gen *Generator) Run(workers int, stopCh <-chan struct{}) {
 }
 
 func (gen *Generator) runWorker() {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for gen.processNextWorkItem() {
 	}
 }
 
 func (gen *Generator) handleErr(err error, key interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := gen.log
 	if err == nil {
 		gen.queue.Forget(key)
@@ -137,6 +146,7 @@ func (gen *Generator) handleErr(err error, key interface{}) {
 }
 
 func (gen *Generator) processNextWorkItem() bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := gen.log
 	obj, shutdown := gen.queue.Get()
 	if shutdown {
@@ -165,6 +175,7 @@ func (gen *Generator) processNextWorkItem() bool {
 }
 
 func (gen *Generator) syncHandler(key Info) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := gen.log
 	var robj runtime.Object
 	var err error

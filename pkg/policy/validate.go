@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/jimlawless/whereami"
 	"reflect"
 	"strings"
 
@@ -21,6 +22,7 @@ import (
 // - One operation per rule
 // - ResourceDescription mandatory checks
 func Validate(policyRaw []byte, client *dclient.Client, mock bool, openAPIController *openapi.Controller) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var p kyverno.ClusterPolicy
 	err := json.Unmarshal(policyRaw, &p)
 	if err != nil {
@@ -86,6 +88,7 @@ func Validate(policyRaw []byte, client *dclient.Client, mock bool, openAPIContro
 // doesMatchAndExcludeConflict checks if the resultant
 // of match and exclude block is not an empty set
 func doesMatchAndExcludeConflict(rule kyverno.Rule) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	if reflect.DeepEqual(rule.ExcludeResources, kyverno.ExcludeResources{}) {
 		return false
@@ -223,6 +226,7 @@ func doesMatchAndExcludeConflict(rule kyverno.Rule) bool {
 }
 
 func ruleOnlyDealsWithResourceMetaData(rule kyverno.Rule) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	overlayMap, _ := rule.Mutation.Overlay.(map[string]interface{})
 	for k := range overlayMap {
 		if k != "metadata" {
@@ -256,6 +260,7 @@ func ruleOnlyDealsWithResourceMetaData(rule kyverno.Rule) bool {
 }
 
 func validateResources(rule kyverno.Rule) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// validate userInfo in match and exclude
 	if path, err := validateUserInfo(rule); err != nil {
 		return fmt.Sprintf("resources.%s", path), err
@@ -274,6 +279,7 @@ func validateResources(rule kyverno.Rule) (string, error) {
 
 // ValidateUniqueRuleName checks if the rule names are unique across a policy
 func validateUniqueRuleName(p kyverno.ClusterPolicy) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var ruleNames []string
 
 	for i, rule := range p.Spec.Rules {
@@ -287,6 +293,7 @@ func validateUniqueRuleName(p kyverno.ClusterPolicy) (string, error) {
 
 // validateRuleType checks only one type of rule is defined per rule
 func validateRuleType(r kyverno.Rule) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	ruleTypes := []bool{r.HasMutate(), r.HasValidate(), r.HasGenerate()}
 
 	operationCount := func() int {
@@ -313,6 +320,7 @@ func validateRuleType(r kyverno.Rule) error {
 // - kinds is empty array in matched resource block, i.e. kinds: []
 // - selector is invalid
 func validateMatchedResourceDescription(rd kyverno.ResourceDescription) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if reflect.DeepEqual(rd, kyverno.ResourceDescription{}) {
 		return "", fmt.Errorf("match resources not specified")
 	}
@@ -325,6 +333,7 @@ func validateMatchedResourceDescription(rd kyverno.ResourceDescription) (string,
 }
 
 func validateUserInfo(rule kyverno.Rule) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if err := validateRoles(rule.MatchResources.Roles); err != nil {
 		return "match.roles", err
 	}
@@ -346,6 +355,7 @@ func validateUserInfo(rule kyverno.Rule) (string, error) {
 
 // a role must in format namespace:name
 func validateRoles(roles []string) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if len(roles) == 0 {
 		return nil
 	}
@@ -361,6 +371,7 @@ func validateRoles(roles []string) error {
 
 // a namespace should be set in kind ServiceAccount of a subject
 func validateSubjects(subjects []rbacv1.Subject) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if len(subjects) == 0 {
 		return nil
 	}
@@ -376,6 +387,7 @@ func validateSubjects(subjects []rbacv1.Subject) error {
 }
 
 func validateExcludeResourceDescription(rd kyverno.ResourceDescription) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if reflect.DeepEqual(rd, kyverno.ResourceDescription{}) {
 		// exclude is not mandatory
 		return "", nil
@@ -389,6 +401,7 @@ func validateExcludeResourceDescription(rd kyverno.ResourceDescription) (string,
 // validateResourceDescription returns error if selector is invalid
 // field type is checked through openapi
 func validateResourceDescription(rd kyverno.ResourceDescription) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if rd.Selector != nil {
 		selector, err := metav1.LabelSelectorAsSelector(rd.Selector)
 		if err != nil {

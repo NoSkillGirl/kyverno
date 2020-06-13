@@ -3,11 +3,13 @@ package generate
 import (
 	"fmt"
 
+	"github.com/jimlawless/whereami"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 func manageLabels(unstr *unstructured.Unstructured, triggerResource unstructured.Unstructured) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// add managedBY label if not defined
 	labels := unstr.GetLabels()
 	if labels == nil {
@@ -24,6 +26,7 @@ func manageLabels(unstr *unstructured.Unstructured, triggerResource unstructured
 }
 
 func managedBy(labels map[string]string) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// ManagedBy label
 	key := "app.kubernetes.io/managed-by"
 	value := "kyverno"
@@ -41,6 +44,7 @@ func managedBy(labels map[string]string) {
 }
 
 func generatedBy(labels map[string]string, triggerResource unstructured.Unstructured) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	key := "kyverno.io/generated-by"
 	value := fmt.Sprintf("%s-%s-%s", triggerResource.GetKind(), triggerResource.GetNamespace(), triggerResource.GetName())
 	val, ok := labels[key]

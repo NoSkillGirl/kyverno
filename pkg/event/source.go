@@ -1,5 +1,11 @@
 package event
 
+import (
+	"fmt"
+
+	"github.com/jimlawless/whereami"
+)
+
 //Source of event generation
 type Source int
 
@@ -13,6 +19,7 @@ const (
 )
 
 func (s Source) String() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return [...]string{
 		"admission-controller",
 		"policy-controller",

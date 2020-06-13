@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"github.com/jimlawless/whereami"
 	"reflect"
 
 	"github.com/go-logr/logr"
@@ -22,6 +23,7 @@ type CanIOptions struct {
 
 //NewCanI returns a new instance of operation access controler evaluator
 func NewCanI(client *client.Client, kind, namespace, verb string, log logr.Logger) *CanIOptions {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	o := CanIOptions{
 		client: client,
 		log:    log,
@@ -41,6 +43,7 @@ func NewCanI(client *client.Client, kind, namespace, verb string, log logr.Logge
 // - If disallowed, the reason and evaluationError is avialable in the logs
 // - each can generates a SelfSubjectAccessReview resource and response is evaluated for permissions
 func (o *CanIOptions) RunAccessCheck() (bool, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// get GroupVersionResource from RESTMapper
 	// get GVR from kind
 	gvr := o.client.DiscoveryClient.GetGVRFromKind(o.kind)

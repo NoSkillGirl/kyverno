@@ -1,11 +1,15 @@
 package policy
 
 import (
+	"fmt"
+
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	cache "k8s.io/client-go/tools/cache"
 )
 
 func (pc *PolicyController) addNamespacedPolicyViolation(obj interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	pv := obj.(*kyverno.PolicyViolation)
 	logger := pc.log.WithValues("kind", pv.Kind, "namespace", pv.Namespace, "name", pv.Name)
 
@@ -36,6 +40,7 @@ func (pc *PolicyController) addNamespacedPolicyViolation(obj interface{}) {
 }
 
 func (pc *PolicyController) updateNamespacedPolicyViolation(old, cur interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	curPV := cur.(*kyverno.PolicyViolation)
 	oldPV := old.(*kyverno.PolicyViolation)
 	if curPV.ResourceVersion == oldPV.ResourceVersion {
@@ -64,6 +69,7 @@ func (pc *PolicyController) updateNamespacedPolicyViolation(old, cur interface{}
 }
 
 func (pc *PolicyController) deleteNamespacedPolicyViolation(obj interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log
 	pv, ok := obj.(*kyverno.PolicyViolation)
 	// When a delete is dropped, the relist will notice a PolicyViolation in the store not
@@ -102,6 +108,7 @@ func (pc *PolicyController) deleteNamespacedPolicyViolation(obj interface{}) {
 }
 
 func (pc *PolicyController) getPolicyForNamespacedPolicyViolation(pv *kyverno.PolicyViolation) []*kyverno.ClusterPolicy {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log.WithValues("kind", pv.Kind, "namespace", pv.Namespace, "name", pv.Name)
 	policies, err := pc.pLister.GetPolicyForNamespacedPolicyViolation(pv)
 	if err != nil || len(policies) == 0 {

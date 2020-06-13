@@ -1,9 +1,12 @@
 package webhooks
 
 import (
+	"fmt"
 	"reflect"
 	"sort"
 	"time"
+
+	"github.com/jimlawless/whereami"
 
 	"github.com/nirmata/kyverno/pkg/utils"
 
@@ -116,10 +119,12 @@ type validateStats struct {
 }
 
 func (vs validateStats) PolicyName() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return vs.resp.PolicyResponse.Policy
 }
 
 func (vs validateStats) UpdateStatus(status kyverno.PolicyStatus) kyverno.PolicyStatus {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if reflect.DeepEqual(response.EngineResponse{}, vs.resp) {
 		return status
 	}

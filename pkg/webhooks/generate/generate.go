@@ -2,6 +2,7 @@ package generate
 
 import (
 	"fmt"
+	"github.com/jimlawless/whereami"
 	"time"
 
 	backoff "github.com/cenkalti/backoff"
@@ -29,6 +30,7 @@ type Generator struct {
 
 //NewGenerator returns a new instance of Generate-Request resource generator
 func NewGenerator(client *kyvernoclient.Clientset, stopCh <-chan struct{}, log logr.Logger) *Generator {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	gen := &Generator{
 		ch:     make(chan kyverno.GenerateRequestSpec, 1000),
 		client: client,
@@ -40,6 +42,7 @@ func NewGenerator(client *kyvernoclient.Clientset, stopCh <-chan struct{}, log l
 
 //Create to create generate request resoruce (blocking call if channel is full)
 func (g *Generator) Create(gr kyverno.GenerateRequestSpec) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := g.log
 	logger.V(4).Info("creating Generate Request", "request", gr)
 	// Send to channel
@@ -54,6 +57,7 @@ func (g *Generator) Create(gr kyverno.GenerateRequestSpec) error {
 
 // Run starts the generate request spec
 func (g *Generator) Run(workers int) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := g.log
 	defer utilruntime.HandleCrash()
 	logger.V(4).Info("starting")
@@ -67,6 +71,7 @@ func (g *Generator) Run(workers int) {
 }
 
 func (g *Generator) process() {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := g.log
 	for r := range g.ch {
 		logger.V(4).Info("recieved generate request", "request", r)
@@ -77,6 +82,7 @@ func (g *Generator) process() {
 }
 
 func (g *Generator) generate(grSpec kyverno.GenerateRequestSpec) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// create a generate request
 	if err := retryCreateResource(g.client, grSpec, g.log); err != nil {
 		return err

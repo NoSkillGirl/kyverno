@@ -1,9 +1,12 @@
 package webhooks
 
 import (
+	"fmt"
 	"reflect"
 	"sort"
 	"time"
+
+	"github.com/jimlawless/whereami"
 
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	v1 "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
@@ -17,6 +20,7 @@ import (
 
 //HandleGenerate handles admission-requests for policies with generate rules
 func (ws *WebhookServer) HandleGenerate(request *v1beta1.AdmissionRequest, policies []*kyverno.ClusterPolicy, ctx *context.Context, userRequestInfo kyverno.RequestInfo) (bool, string) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := ws.log.WithValues("action", "generation", "uid", request.UID, "kind", request.Kind, "namespace", request.Namespace, "name", request.Name, "operation", request.Operation)
 	logger.V(4).Info("incoming request")
 	var engineResponses []response.EngineResponse
@@ -66,6 +70,7 @@ func (ws *WebhookServer) HandleGenerate(request *v1beta1.AdmissionRequest, polic
 }
 
 func createGenerateRequest(gnGenerator generate.GenerateRequests, userRequestInfo kyverno.RequestInfo, engineResponses ...response.EngineResponse) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, er := range engineResponses {
 		if err := gnGenerator.Create(transform(userRequestInfo, er)); err != nil {
 			return err
@@ -75,6 +80,7 @@ func createGenerateRequest(gnGenerator generate.GenerateRequests, userRequestInf
 }
 
 func transform(userRequestInfo kyverno.RequestInfo, er response.EngineResponse) kyverno.GenerateRequestSpec {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	gr := kyverno.GenerateRequestSpec{
 		Policy: er.PolicyResponse.Policy,
 		Resource: kyverno.ResourceSpec{
@@ -94,10 +100,12 @@ type generateStats struct {
 }
 
 func (gs generateStats) PolicyName() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return gs.resp.PolicyResponse.Policy
 }
 
 func (gs generateStats) UpdateStatus(status kyverno.PolicyStatus) kyverno.PolicyStatus {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if reflect.DeepEqual(response.EngineResponse{}, gs.resp) {
 		return status
 	}
@@ -149,6 +157,7 @@ func (gs generateStats) UpdateStatus(status kyverno.PolicyStatus) kyverno.Policy
 }
 
 func updateAverageTime(newTime time.Duration, oldAverageTimeString string, averageOver int64) time.Duration {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if averageOver == 0 {
 		return newTime
 	}

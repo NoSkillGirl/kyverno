@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/jimlawless/whereami"
 	data "github.com/nirmata/kyverno/api"
 	"github.com/nirmata/kyverno/pkg/engine/utils"
 
@@ -36,6 +37,7 @@ type Controller struct {
 }
 
 func NewOpenAPIController() (*Controller, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	controller := &Controller{
 		definitions:          make(map[string]*openapi_v2.Schema),
 		kindToDefinitionName: make(map[string]string),
@@ -55,6 +57,7 @@ func NewOpenAPIController() (*Controller, error) {
 }
 
 func (o *Controller) ValidatePolicyFields(policyRaw []byte) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	o.mutex.RLock()
 	defer o.mutex.RUnlock()
 
@@ -78,6 +81,7 @@ func (o *Controller) ValidatePolicyFields(policyRaw []byte) error {
 }
 
 func (o *Controller) ValidateResource(patchedResource unstructured.Unstructured, kind string) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	o.mutex.RLock()
 	defer o.mutex.RUnlock()
 	var err error
@@ -106,12 +110,14 @@ func (o *Controller) ValidateResource(patchedResource unstructured.Unstructured,
 }
 
 func (o *Controller) GetDefinitionNameFromKind(kind string) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	o.mutex.RLock()
 	defer o.mutex.RUnlock()
 	return o.kindToDefinitionName[kind]
 }
 
 func (o *Controller) ValidatePolicyMutation(policy v1.ClusterPolicy) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	o.mutex.RLock()
 	defer o.mutex.RUnlock()
 
@@ -149,6 +155,7 @@ func (o *Controller) ValidatePolicyMutation(policy v1.ClusterPolicy) error {
 }
 
 func (o *Controller) useOpenApiDocument(doc *openapi_v2.Document) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	o.mutex.Lock()
 	defer o.mutex.Unlock()
 
@@ -168,6 +175,7 @@ func (o *Controller) useOpenApiDocument(doc *openapi_v2.Document) error {
 }
 
 func getSchemaDocument() (*openapi_v2.Document, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var spec yaml.MapSlice
 	err := yaml.Unmarshal([]byte(data.SwaggerDoc), &spec)
 	if err != nil {
@@ -179,6 +187,7 @@ func getSchemaDocument() (*openapi_v2.Document, error) {
 
 // For crd, we do not store definition in document
 func (o *Controller) getCRDSchema(kind string) (proto.Schema, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if kind == "" {
 		return nil, errors.New("invalid kind")
 	}
@@ -199,6 +208,7 @@ func (o *Controller) getCRDSchema(kind string) (proto.Schema, error) {
 }
 
 func (o *Controller) generateEmptyResource(kindSchema *openapi_v2.Schema) interface{} {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	types := kindSchema.GetType().GetValue()
 

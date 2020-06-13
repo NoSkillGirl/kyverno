@@ -19,6 +19,8 @@ limitations under the License.
 package fake
 
 import (
+	"fmt"
+	"github.com/jimlawless/whereami"
 	clientset "github.com/nirmata/kyverno/pkg/client/clientset/versioned"
 	kyvernov1 "github.com/nirmata/kyverno/pkg/client/clientset/versioned/typed/kyverno/v1"
 	fakekyvernov1 "github.com/nirmata/kyverno/pkg/client/clientset/versioned/typed/kyverno/v1/fake"
@@ -34,6 +36,7 @@ import (
 // without applying any validations and/or defaults. It shouldn't be considered a replacement
 // for a real clientset and is mostly useful in simple unit tests.
 func NewSimpleClientset(objects ...runtime.Object) *Clientset {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	o := testing.NewObjectTracker(scheme, codecs.UniversalDecoder())
 	for _, obj := range objects {
 		if err := o.Add(obj); err != nil {
@@ -45,6 +48,7 @@ func NewSimpleClientset(objects ...runtime.Object) *Clientset {
 	cs.discovery = &fakediscovery.FakeDiscovery{Fake: &cs.Fake}
 	cs.AddReactor("*", "*", testing.ObjectReaction(o))
 	cs.AddWatchReactor("*", func(action testing.Action) (handled bool, ret watch.Interface, err error) {
+		fmt.Printf("%s\n", whereami.WhereAmI())
 		gvr := action.GetResource()
 		ns := action.GetNamespace()
 		watch, err := o.Watch(gvr, ns)
@@ -67,10 +71,12 @@ type Clientset struct {
 }
 
 func (c *Clientset) Discovery() discovery.DiscoveryInterface {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return c.discovery
 }
 
 func (c *Clientset) Tracker() testing.ObjectTracker {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return c.tracker
 }
 
@@ -78,5 +84,6 @@ var _ clientset.Interface = &Clientset{}
 
 // KyvernoV1 retrieves the KyvernoV1Client
 func (c *Clientset) KyvernoV1() kyvernov1.KyvernoV1Interface {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return &fakekyvernov1.FakeKyvernoV1{Fake: &c.Fake}
 }

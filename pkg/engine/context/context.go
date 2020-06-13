@@ -2,6 +2,7 @@ package context
 
 import (
 	"encoding/json"
+	"github.com/jimlawless/whereami"
 	"strings"
 	"sync"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/go-logr/logr"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"fmt"
 )
 
 //Interface to manage context operations
@@ -42,6 +44,7 @@ type Context struct {
 //NewContext returns a new context
 // pass the list of variables to be white-listed
 func NewContext(whiteListVars ...string) *Context {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	ctx := Context{
 		// data:    map[string]interface{}{},
 		jsonRaw:       []byte(`{}`), // empty json struct
@@ -53,6 +56,7 @@ func NewContext(whiteListVars ...string) *Context {
 
 // AddJSON merges json data
 func (ctx *Context) AddJSON(dataRaw []byte) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var err error
 	ctx.mu.Lock()
 	defer ctx.mu.Unlock()
@@ -66,6 +70,7 @@ func (ctx *Context) AddJSON(dataRaw []byte) error {
 }
 
 func (ctx *Context) AddRequest(request *v1beta1.AdmissionRequest) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	modifiedResource := struct {
 		Request interface{} `json:"request"`
 	}{
@@ -82,6 +87,7 @@ func (ctx *Context) AddRequest(request *v1beta1.AdmissionRequest) error {
 
 //AddResource data at path: request.object
 func (ctx *Context) AddResource(dataRaw []byte) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	// unmarshall the resource struct
 	var data interface{}
@@ -110,6 +116,7 @@ func (ctx *Context) AddResource(dataRaw []byte) error {
 
 //AddUserInfo adds userInfo at path request.userInfo
 func (ctx *Context) AddUserInfo(userRequestInfo kyverno.RequestInfo) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	modifiedResource := struct {
 		Request interface{} `json:"request"`
 	}{
@@ -126,6 +133,7 @@ func (ctx *Context) AddUserInfo(userRequestInfo kyverno.RequestInfo) error {
 
 //AddSA removes prefix 'system:serviceaccount:' and namespace, then loads only SA name and SA namespace
 func (ctx *Context) AddSA(userName string) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	saPrefix := "system:serviceaccount:"
 	var sa string
 	saName := ""

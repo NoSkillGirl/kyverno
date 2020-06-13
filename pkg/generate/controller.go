@@ -1,9 +1,11 @@
 package generate
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	kyvernoclient "github.com/nirmata/kyverno/pkg/client/clientset/versioned"
 	kyvernoinformer "github.com/nirmata/kyverno/pkg/client/informers/externalversions/kyverno/v1"
@@ -119,6 +121,7 @@ func NewController(
 }
 
 func (c *Controller) updateGenericResource(old, cur interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log
 	curR := cur.(*unstructured.Unstructured)
 
@@ -135,6 +138,7 @@ func (c *Controller) updateGenericResource(old, cur interface{}) {
 }
 
 func (c *Controller) enqueue(gr *kyverno.GenerateRequest) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	key, err := cache.MetaNamespaceKeyFunc(gr)
 	if err != nil {
 		c.log.Error(err, "failed to extract name")
@@ -144,6 +148,7 @@ func (c *Controller) enqueue(gr *kyverno.GenerateRequest) {
 }
 
 func (c *Controller) updatePolicy(old, cur interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log
 	oldP := old.(*kyverno.ClusterPolicy)
 	curP := cur.(*kyverno.ClusterPolicy)
@@ -166,11 +171,13 @@ func (c *Controller) updatePolicy(old, cur interface{}) {
 }
 
 func (c *Controller) addGR(obj interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	gr := obj.(*kyverno.GenerateRequest)
 	c.enqueueGR(gr)
 }
 
 func (c *Controller) updateGR(old, cur interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	oldGr := old.(*kyverno.GenerateRequest)
 	curGr := cur.(*kyverno.GenerateRequest)
 	if oldGr.ResourceVersion == curGr.ResourceVersion {
@@ -187,6 +194,7 @@ func (c *Controller) updateGR(old, cur interface{}) {
 }
 
 func (c *Controller) deleteGR(obj interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log
 	gr, ok := obj.(*kyverno.GenerateRequest)
 	if !ok {
@@ -208,6 +216,7 @@ func (c *Controller) deleteGR(obj interface{}) {
 
 //Run ...
 func (c *Controller) Run(workers int, stopCh <-chan struct{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log
 	defer utilruntime.HandleCrash()
 	defer c.queue.ShutDown()
@@ -228,11 +237,13 @@ func (c *Controller) Run(workers int, stopCh <-chan struct{}) {
 // worker runs a worker thread that just dequeues items, processes them, and marks them done.
 // It enforces that the syncHandler is never invoked concurrently with the same key.
 func (c *Controller) worker() {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for c.processNextWorkItem() {
 	}
 }
 
 func (c *Controller) processNextWorkItem() bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	key, quit := c.queue.Get()
 	if quit {
 		return false
@@ -245,6 +256,7 @@ func (c *Controller) processNextWorkItem() bool {
 }
 
 func (c *Controller) handleErr(err error, key interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log
 	if err == nil {
 		c.queue.Forget(key)
@@ -262,6 +274,7 @@ func (c *Controller) handleErr(err error, key interface{}) {
 }
 
 func (c *Controller) syncGenerateRequest(key string) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log
 	var err error
 	startTime := time.Now()

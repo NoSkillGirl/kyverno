@@ -1,9 +1,11 @@
 package generate
 
 import (
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/policy/generate/fake"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"fmt"
 )
 
 //FakeGenerate provides implementation for generate rule processing
@@ -15,6 +17,7 @@ type FakeGenerate struct {
 //NewFakeGenerate returns a new instance of generatecheck that uses
 // fake/mock implementation for operation access(always returns true)
 func NewFakeGenerate(rule kyverno.Generation) *FakeGenerate {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	g := FakeGenerate{}
 	g.rule = rule
 	g.authCheck = fake.NewFakeAuth()

@@ -6,6 +6,7 @@ import (
 
 	openapi_v2 "github.com/googleapis/gnostic/OpenAPIv2"
 
+	"github.com/jimlawless/whereami"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -28,6 +29,7 @@ const (
 
 //NewMockClient ---testing utilities
 func NewMockClient(scheme *runtime.Scheme, objects ...runtime.Object) (*Client, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	client := fake.NewSimpleDynamicClient(scheme, objects...)
 	// the typed and dynamic client are initialized with similar resources
 	kclient := kubernetesfake.NewSimpleClientset(objects...)
@@ -40,6 +42,7 @@ func NewMockClient(scheme *runtime.Scheme, objects ...runtime.Object) (*Client, 
 
 // NewFakeDiscoveryClient returns a fakediscovery client
 func NewFakeDiscoveryClient(registeredResouces []schema.GroupVersionResource) *fakeDiscoveryClient {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// Load some-preregistd resources
 	res := []schema.GroupVersionResource{
 		{Version: "v1", Resource: "configmaps"},
@@ -61,6 +64,7 @@ type fakeDiscoveryClient struct {
 }
 
 func (c *fakeDiscoveryClient) getGVR(resource string) schema.GroupVersionResource {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, gvr := range c.registeredResouces {
 		if gvr.Resource == resource {
 			return gvr
@@ -70,23 +74,28 @@ func (c *fakeDiscoveryClient) getGVR(resource string) schema.GroupVersionResourc
 }
 
 func (c *fakeDiscoveryClient) GetServerVersion() (*version.Info, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return nil, nil
 }
 
 func (c *fakeDiscoveryClient) GetGVRFromKind(kind string) schema.GroupVersionResource {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	resource := strings.ToLower(kind) + "s"
 	return c.getGVR(resource)
 }
 
 func (c *fakeDiscoveryClient) FindResource(kind string) (*meta.APIResource, schema.GroupVersionResource, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return nil, schema.GroupVersionResource{}, fmt.Errorf("Not implemented")
 }
 
 func (c *fakeDiscoveryClient) OpenAPISchema() (*openapi_v2.Document, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return nil, nil
 }
 
 func newUnstructured(apiVersion, kind, namespace, name string) *unstructured.Unstructured {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return &unstructured.Unstructured{
 		Object: map[string]interface{}{
 			"apiVersion": apiVersion,
@@ -100,6 +109,7 @@ func newUnstructured(apiVersion, kind, namespace, name string) *unstructured.Uns
 }
 
 func newUnstructuredWithSpec(apiVersion, kind, namespace, name string, spec map[string]interface{}) *unstructured.Unstructured {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	u := newUnstructured(apiVersion, kind, namespace, name)
 	u.Object["spec"] = spec
 	return u

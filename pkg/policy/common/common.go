@@ -5,11 +5,13 @@ import (
 	"regexp"
 	"strconv"
 
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/engine/anchor"
 )
 
 //ValidatePattern validates the pattern
 func ValidatePattern(patternElement interface{}, path string, supportedAnchors []anchor.IsAnchor) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch typedPatternElement := patternElement.(type) {
 	case map[string]interface{}:
 		return validateMap(typedPatternElement, path, supportedAnchors)
@@ -23,6 +25,7 @@ func ValidatePattern(patternElement interface{}, path string, supportedAnchors [
 	}
 }
 func validateMap(patternMap map[string]interface{}, path string, supportedAnchors []anchor.IsAnchor) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// check if anchors are defined
 	for key, value := range patternMap {
 		// if key is anchor
@@ -65,6 +68,7 @@ func validateMap(patternMap map[string]interface{}, path string, supportedAnchor
 }
 
 func validateArray(patternArray []interface{}, path string, supportedAnchors []anchor.IsAnchor) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for i, patternElement := range patternArray {
 		currentPath := path + strconv.Itoa(i) + "/"
 		// lets validate the values now :)
@@ -76,6 +80,7 @@ func validateArray(patternArray []interface{}, path string, supportedAnchors []a
 }
 
 func checkAnchors(key string, supportedAnchors []anchor.IsAnchor) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, f := range supportedAnchors {
 		if f(key) {
 			return true

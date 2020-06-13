@@ -2,13 +2,17 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
+
+	"github.com/jimlawless/whereami"
 
 	v1 "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 )
 
 // JoinPatches joins array of serialized JSON patches to the single JSONPatch array
 func JoinPatches(patches [][]byte) []byte {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var result []byte
 	if len(patches) == 0 {
 		return result
@@ -30,6 +34,7 @@ func JoinPatches(patches [][]byte) []byte {
 // policy to be non nil.
 // TODO This needs to be removed. A simpler way to encode and decode Policy is needed.
 func MarshalPolicy(policy v1.ClusterPolicy) []byte {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var rules []interface{}
 	rulesRaw, _ := json.Marshal(policy.Spec.Rules)
 	_ = json.Unmarshal(rulesRaw, &rules)

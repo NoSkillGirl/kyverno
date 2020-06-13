@@ -2,6 +2,7 @@ package policyviolation
 
 import (
 	"fmt"
+	"github.com/jimlawless/whereami"
 
 	"github.com/go-logr/logr"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
@@ -42,6 +43,7 @@ func newClusterPV(log logr.Logger, dclient *client.Client,
 }
 
 func (cpv *clusterPV) create(pv kyverno.PolicyViolationTemplate) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	newPv := kyverno.ClusterPolicyViolation(pv)
 	// PV already exists
 	oldPv, err := cpv.getExisting(newPv)
@@ -58,6 +60,7 @@ func (cpv *clusterPV) create(pv kyverno.PolicyViolationTemplate) error {
 }
 
 func (cpv *clusterPV) getExisting(newPv kyverno.ClusterPolicyViolation) (*kyverno.ClusterPolicyViolation, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := cpv.log.WithValues("namespace", newPv.Namespace, "name", newPv.Name)
 	var err error
 	// use labels
@@ -85,6 +88,7 @@ func (cpv *clusterPV) getExisting(newPv kyverno.ClusterPolicyViolation) (*kyvern
 }
 
 func (cpv *clusterPV) createPV(newPv *kyverno.ClusterPolicyViolation) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var err error
 	logger := cpv.log.WithValues("policy", newPv.Spec.Policy, "kind", newPv.Spec.ResourceSpec.Kind, "namespace", newPv.Spec.ResourceSpec.Namespace, "name", newPv.Spec.ResourceSpec.Name)
 	logger.V(4).Info("creating new policy violation")
@@ -121,6 +125,7 @@ func (cpv *clusterPV) createPV(newPv *kyverno.ClusterPolicyViolation) error {
 }
 
 func (cpv *clusterPV) updatePV(newPv, oldPv *kyverno.ClusterPolicyViolation) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := cpv.log.WithValues("policy", newPv.Spec.Policy, "kind", newPv.Spec.ResourceSpec.Kind, "namespace", newPv.Spec.ResourceSpec.Namespace, "name", newPv.Spec.ResourceSpec.Name)
 	var err error
 	// check if there is any update

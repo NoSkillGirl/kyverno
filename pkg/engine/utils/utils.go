@@ -1,7 +1,10 @@
 package utils
 
 import (
+	"fmt"
+
 	jsonpatch "github.com/evanphx/json-patch"
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/engine/anchor"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -21,6 +24,7 @@ const (
 )
 
 func (ri RuleType) String() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return [...]string{
 		"Mutation",
 		"Validation",
@@ -32,6 +36,7 @@ func (ri RuleType) String() string {
 // ApplyPatches patches given resource with given patches and returns patched document
 // return original resource if any error occurs
 func ApplyPatches(resource []byte, patches [][]byte) ([]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	joinedPatches := JoinPatches(patches)
 	patch, err := jsonpatch.DecodePatch(joinedPatches)
 	if err != nil {
@@ -48,6 +53,7 @@ func ApplyPatches(resource []byte, patches [][]byte) ([]byte, error) {
 
 //ApplyPatchNew patches given resource with given joined patches
 func ApplyPatchNew(resource, patch []byte) ([]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	jsonpatch, err := jsonpatch.DecodePatch(patch)
 	if err != nil {
 		return nil, err
@@ -64,6 +70,7 @@ func ApplyPatchNew(resource, patch []byte) ([]byte, error) {
 
 // JoinPatches joins array of serialized JSON patches to the single JSONPatch array
 func JoinPatches(patches [][]byte) []byte {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var result []byte
 	if len(patches) == 0 {
 		return result
@@ -82,6 +89,7 @@ func JoinPatches(patches [][]byte) []byte {
 
 //ConvertToUnstructured converts the resource to unstructured format
 func ConvertToUnstructured(data []byte) (*unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	resource := &unstructured.Unstructured{}
 	err := resource.UnmarshalJSON(data)
 	if err != nil {
@@ -92,6 +100,7 @@ func ConvertToUnstructured(data []byte) (*unstructured.Unstructured, error) {
 
 // GetAnchorsFromMap gets the conditional anchor map
 func GetAnchorsFromMap(anchorsMap map[string]interface{}) map[string]interface{} {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	result := make(map[string]interface{})
 
 	for key, value := range anchorsMap {

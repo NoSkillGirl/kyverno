@@ -1,6 +1,9 @@
 package generate
 
 import (
+	"fmt"
+
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	kyvernoclient "github.com/nirmata/kyverno/pkg/client/clientset/versioned"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -19,6 +22,7 @@ type StatusControl struct {
 
 //Failed sets gr status.state to failed with message
 func (sc StatusControl) Failed(gr kyverno.GenerateRequest, message string, genResources []kyverno.ResourceSpec) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	gr.Status.State = kyverno.Failed
 	gr.Status.Message = message
 	// Update Generated Resources
@@ -34,6 +38,7 @@ func (sc StatusControl) Failed(gr kyverno.GenerateRequest, message string, genRe
 
 // Success sets the gr status.state to completed and clears message
 func (sc StatusControl) Success(gr kyverno.GenerateRequest, genResources []kyverno.ResourceSpec) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	gr.Status.State = kyverno.Completed
 	gr.Status.Message = ""
 	// Update Generated Resources

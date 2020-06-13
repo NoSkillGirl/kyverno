@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-logr/logr"
 	openapi_v2 "github.com/googleapis/gnostic/OpenAPIv2"
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/config"
 	apps "k8s.io/api/apps/v1"
 	certificates "k8s.io/api/certificates/v1beta1"
@@ -39,6 +40,7 @@ type Client struct {
 
 //NewClient creates new instance of client
 func NewClient(config *rest.Config, resync time.Duration, stopCh <-chan struct{}, log logr.Logger) (*Client, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	dclient, err := dynamic.NewForConfig(config)
 	if err != nil {
@@ -69,11 +71,13 @@ func NewClient(config *rest.Config, resync time.Duration, stopCh <-chan struct{}
 
 //NewDynamicSharedInformerFactory returns a new instance of DynamicSharedInformerFactory
 func (c *Client) NewDynamicSharedInformerFactory(defaultResync time.Duration) dynamicinformer.DynamicSharedInformerFactory {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return dynamicinformer.NewDynamicSharedInformerFactory(c.client, defaultResync)
 }
 
 //GetKubePolicyDeployment returns kube policy depoyment value
 func (c *Client) GetKubePolicyDeployment() (*apps.Deployment, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	kubePolicyDeployment, err := c.GetResource("Deployment", config.KubePolicyNamespace, config.KubePolicyDeploymentName)
 	if err != nil {
 		return nil, err
@@ -89,19 +93,23 @@ func (c *Client) GetKubePolicyDeployment() (*apps.Deployment, error) {
 //TODO: can we use dynamic client to fetch the typed interface
 // or generate a kube client value to access the interface
 func (c *Client) GetEventsInterface() (event.EventInterface, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return c.kclient.CoreV1().Events(""), nil
 }
 
 //GetCSRInterface provides type interface for CSR
 func (c *Client) GetCSRInterface() (csrtype.CertificateSigningRequestInterface, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return c.kclient.CertificatesV1beta1().CertificateSigningRequests(), nil
 }
 
 func (c *Client) getInterface(resource string) dynamic.NamespaceableResourceInterface {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return c.client.Resource(c.getGroupVersionMapper(resource))
 }
 
 func (c *Client) getResourceInterface(kind string, namespace string) dynamic.ResourceInterface {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// Get the resource interface from kind
 	namespaceableInterface := c.getInterface(kind)
 	// Get the namespacable interface
@@ -116,27 +124,32 @@ func (c *Client) getResourceInterface(kind string, namespace string) dynamic.Res
 
 // Keep this a stateful as the resource list will be based on the kubernetes version we connect to
 func (c *Client) getGroupVersionMapper(kind string) schema.GroupVersionResource {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return c.DiscoveryClient.GetGVRFromKind(kind)
 }
 
 // GetResource returns the resource in unstructured/json format
 func (c *Client) GetResource(kind string, namespace string, name string, subresources ...string) (*unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return c.getResourceInterface(kind, namespace).Get(name, meta.GetOptions{}, subresources...)
 }
 
 //PatchResource patches the resource
 func (c *Client) PatchResource(kind string, namespace string, name string, patch []byte) (*unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return c.getResourceInterface(kind, namespace).Patch(name, patchTypes.JSONPatchType, patch, meta.PatchOptions{})
 }
 
 // GetDynamicInterface fetches underlying dynamic interface
 func (c *Client) GetDynamicInterface() dynamic.Interface {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return c.client
 }
 
 // ListResource returns the list of resources in unstructured/json format
 // Access items using []Items
 func (c *Client) ListResource(kind string, namespace string, lselector *meta.LabelSelector) (*unstructured.UnstructuredList, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	options := meta.ListOptions{}
 	if lselector != nil {
 		options = meta.ListOptions{LabelSelector: helperv1.FormatLabelSelector(lselector)}
@@ -146,6 +159,7 @@ func (c *Client) ListResource(kind string, namespace string, lselector *meta.Lab
 
 // DeleteResource deletes the specified resource
 func (c *Client) DeleteResource(kind string, namespace string, name string, dryRun bool) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	options := meta.DeleteOptions{}
 	if dryRun {
 		options = meta.DeleteOptions{DryRun: []string{meta.DryRunAll}}
@@ -156,6 +170,7 @@ func (c *Client) DeleteResource(kind string, namespace string, name string, dryR
 
 // CreateResource creates object for the specified resource/namespace
 func (c *Client) CreateResource(kind string, namespace string, obj interface{}, dryRun bool) (*unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	options := meta.CreateOptions{}
 	if dryRun {
 		options = meta.CreateOptions{DryRun: []string{meta.DryRunAll}}
@@ -169,6 +184,7 @@ func (c *Client) CreateResource(kind string, namespace string, obj interface{}, 
 
 // UpdateResource updates object for the specified resource/namespace
 func (c *Client) UpdateResource(kind string, namespace string, obj interface{}, dryRun bool) (*unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	options := meta.UpdateOptions{}
 	if dryRun {
 		options = meta.UpdateOptions{DryRun: []string{meta.DryRunAll}}
@@ -182,6 +198,7 @@ func (c *Client) UpdateResource(kind string, namespace string, obj interface{}, 
 
 // UpdateStatusResource updates the resource "status" subresource
 func (c *Client) UpdateStatusResource(kind string, namespace string, obj interface{}, dryRun bool) (*unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	options := meta.UpdateOptions{}
 	if dryRun {
 		options = meta.UpdateOptions{DryRun: []string{meta.DryRunAll}}
@@ -194,6 +211,7 @@ func (c *Client) UpdateStatusResource(kind string, namespace string, obj interfa
 }
 
 func convertToUnstructured(obj interface{}) *unstructured.Unstructured {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	unstructuredObj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(&obj)
 	if err != nil {
 		return nil
@@ -203,6 +221,7 @@ func convertToUnstructured(obj interface{}) *unstructured.Unstructured {
 
 //To-Do remove this to use unstructured type
 func convertToSecret(obj *unstructured.Unstructured) (v1.Secret, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	secret := v1.Secret{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(obj.UnstructuredContent(), &secret); err != nil {
 		return secret, err
@@ -212,6 +231,7 @@ func convertToSecret(obj *unstructured.Unstructured) (v1.Secret, error) {
 
 //To-Do remove this to use unstructured type
 func convertToCSR(obj *unstructured.Unstructured) (*certificates.CertificateSigningRequest, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	csr := certificates.CertificateSigningRequest{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(obj.UnstructuredContent(), &csr); err != nil {
 		return nil, err
@@ -229,6 +249,7 @@ type IDiscovery interface {
 
 // SetDiscovery sets the discovery client implementation
 func (c *Client) SetDiscovery(discoveryClient IDiscovery) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	c.DiscoveryClient = discoveryClient
 }
 
@@ -240,6 +261,7 @@ type ServerPreferredResources struct {
 
 //Poll will keep invalidate the local cache
 func (c ServerPreferredResources) Poll(resync time.Duration, stopCh <-chan struct{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log.WithName("Poll")
 	// start a ticker
 	ticker := time.NewTicker(resync)
@@ -260,11 +282,13 @@ func (c ServerPreferredResources) Poll(resync time.Duration, stopCh <-chan struc
 
 // OpenAPISchema returns the API server OpenAPI schema document
 func (c ServerPreferredResources) OpenAPISchema() (*openapi_v2.Document, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return c.cachedClient.OpenAPISchema()
 }
 
 // GetGVRFromKind get the Group Version Resource from kind
 func (c ServerPreferredResources) GetGVRFromKind(kind string) schema.GroupVersionResource {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	_, gvr, err := c.FindResource(kind)
 	if err != nil {
 		c.log.Info("schema not found", "kind", kind)
@@ -276,12 +300,14 @@ func (c ServerPreferredResources) GetGVRFromKind(kind string) schema.GroupVersio
 
 // GetServerVersion returns the server version of the cluster
 func (c ServerPreferredResources) GetServerVersion() (*version.Info, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return c.cachedClient.ServerVersion()
 }
 
 // FindResource finds an API resource that matches 'kind'. If the resource is not
 // found and the Cache is not fresh, the cache is invalidated and a retry is attempted
 func (c ServerPreferredResources) FindResource(kind string) (*meta.APIResource, schema.GroupVersionResource, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	r, gvr, err := c.findResource(kind)
 	if err == nil {
 		return r, gvr, nil
@@ -298,6 +324,7 @@ func (c ServerPreferredResources) FindResource(kind string) (*meta.APIResource, 
 }
 
 func (c ServerPreferredResources) findResource(k string) (*meta.APIResource, schema.GroupVersionResource, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	serverresources, err := c.cachedClient.ServerPreferredResources()
 	if err != nil {
 		c.log.Error(err, "failed to get registered preferred resources")

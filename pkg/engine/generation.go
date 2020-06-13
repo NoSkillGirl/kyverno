@@ -1,9 +1,11 @@
 package engine
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/engine/context"
@@ -18,6 +20,7 @@ import (
 //    - the caller has to check the ruleResponse to determine whether the path exist
 // 2. returns the list of rules that are applicable on this policy and resource, if 1 succeed
 func Generate(policyContext PolicyContext) (resp response.EngineResponse) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	policy := policyContext.Policy
 	resource := policyContext.NewResource
 	admissionInfo := policyContext.AdmissionInfo
@@ -27,6 +30,7 @@ func Generate(policyContext PolicyContext) (resp response.EngineResponse) {
 }
 
 func filterRule(rule kyverno.Rule, resource unstructured.Unstructured, admissionInfo kyverno.RequestInfo, ctx context.EvalInterface, log logr.Logger) *response.RuleResponse {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if !rule.HasGenerate() {
 		return nil
 	}
@@ -56,6 +60,7 @@ func filterRule(rule kyverno.Rule, resource unstructured.Unstructured, admission
 }
 
 func filterRules(policy kyverno.ClusterPolicy, resource unstructured.Unstructured, admissionInfo kyverno.RequestInfo, ctx context.EvalInterface, log logr.Logger) response.EngineResponse {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	resp := response.EngineResponse{
 		PolicyResponse: response.PolicyResponse{
 			Policy: policy.Name,

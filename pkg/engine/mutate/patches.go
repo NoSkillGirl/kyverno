@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/engine/response"
 	"github.com/nirmata/kyverno/pkg/engine/utils"
@@ -15,12 +16,14 @@ import (
 
 // applyPatch applies patch for resource, returns patched resource.
 func applyPatch(resource []byte, patchRaw []byte) ([]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	patchesList := [][]byte{patchRaw}
 	return utils.ApplyPatches(resource, patchesList)
 }
 
 //ProcessPatches applies the patches on the resource and returns the patched resource
 func ProcessPatches(log logr.Logger, rule kyverno.Rule, resource unstructured.Unstructured) (resp response.RuleResponse, patchedResource unstructured.Unstructured) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := log.WithValues("rule", rule.Name)
 	startTime := time.Now()
 	logger.V(4).Info("started JSON patch", "startTime", startTime)

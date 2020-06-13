@@ -1,10 +1,17 @@
 package anchor
 
+import (
+	"fmt"
+
+	"github.com/jimlawless/whereami"
+)
+
 // IsAnchor is a function handler
 type IsAnchor func(str string) bool
 
 //IsConditionAnchor checks for condition anchor
 func IsConditionAnchor(str string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if len(str) < 2 {
 		return false
 	}
@@ -14,6 +21,7 @@ func IsConditionAnchor(str string) bool {
 
 //IsNegationAnchor checks for negation anchor
 func IsNegationAnchor(str string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	left := "X("
 	right := ")"
 	if len(str) < len(left)+len(right) {
@@ -25,6 +33,7 @@ func IsNegationAnchor(str string) bool {
 
 // IsAddingAnchor checks for addition anchor
 func IsAddingAnchor(key string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	const left = "+("
 	const right = ")"
 
@@ -37,6 +46,7 @@ func IsAddingAnchor(key string) bool {
 
 // IsEqualityAnchor checks for equality anchor
 func IsEqualityAnchor(str string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	left := "=("
 	right := ")"
 	if len(str) < len(left)+len(right) {
@@ -48,6 +58,7 @@ func IsEqualityAnchor(str string) bool {
 
 //IsExistenceAnchor checks for existence anchor
 func IsExistenceAnchor(str string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	left := "^("
 	right := ")"
 
@@ -59,6 +70,7 @@ func IsExistenceAnchor(str string) bool {
 }
 
 func removeAnchor(key string) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if IsConditionAnchor(key) {
 		return key[1 : len(key)-1]
 	}

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/engine/context"
 )
 
@@ -17,6 +18,7 @@ const (
 //SubstituteVars replaces the variables with the values defined in the context
 // - if any variable is invaid or has nil value, it is considered as a failed varable substitution
 func SubstituteVars(log logr.Logger, ctx context.EvalInterface, pattern interface{}) (interface{}, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	pattern, err := subVars(log, ctx, pattern, "")
 	if err != nil {
 		return pattern, err
@@ -25,6 +27,7 @@ func SubstituteVars(log logr.Logger, ctx context.EvalInterface, pattern interfac
 }
 
 func subVars(log logr.Logger, ctx context.EvalInterface, pattern interface{}, path string) (interface{}, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch typedPattern := pattern.(type) {
 	case map[string]interface{}:
 		mapCopy := make(map[string]interface{})
@@ -46,6 +49,7 @@ func subVars(log logr.Logger, ctx context.EvalInterface, pattern interface{}, pa
 }
 
 func subMap(log logr.Logger, ctx context.EvalInterface, patternMap map[string]interface{}, path string) (map[string]interface{}, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for key, patternElement := range patternMap {
 		curPath := path + "/" + key
 		value, err := subVars(log, ctx, patternElement, curPath)
@@ -59,6 +63,7 @@ func subMap(log logr.Logger, ctx context.EvalInterface, patternMap map[string]in
 }
 
 func subArray(log logr.Logger, ctx context.EvalInterface, patternList []interface{}, path string) ([]interface{}, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for idx, patternElement := range patternList {
 		curPath := path + "/" + strconv.Itoa(idx)
 		value, err := subVars(log, ctx, patternElement, curPath)
@@ -76,11 +81,13 @@ type NotFoundVariableErr struct {
 }
 
 func (n NotFoundVariableErr) Error() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return fmt.Sprintf("could not find variable %v at path %v", n.variable, n.path)
 }
 
 // subValR resolves the variables if defined
 func subValR(ctx context.EvalInterface, valuePattern string, path string) (interface{}, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	originalPattern := valuePattern
 
 	regex := regexp.MustCompile(`\{\{([^{}]*)\}\}`)

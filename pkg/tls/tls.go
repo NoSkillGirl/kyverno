@@ -7,8 +7,11 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"net"
 	"time"
+
+	"github.com/jimlawless/whereami"
 
 	certificates "k8s.io/api/certificates/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,11 +32,13 @@ type TlsPemPair struct {
 
 //TLSGeneratePrivateKey Generates RSA private key
 func TLSGeneratePrivateKey() (*rsa.PrivateKey, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return rsa.GenerateKey(rand.Reader, 2048)
 }
 
 //TLSPrivateKeyToPem Creates PEM block from private key object
 func TLSPrivateKeyToPem(rsaKey *rsa.PrivateKey) []byte {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	privateKey := &pem.Block{
 		Type:  "PRIVATE KEY",
 		Bytes: x509.MarshalPKCS1PrivateKey(rsaKey),
@@ -44,6 +49,7 @@ func TLSPrivateKeyToPem(rsaKey *rsa.PrivateKey) []byte {
 
 //TlsCertificateRequestToPem Creates PEM block from raw certificate request
 func certificateRequestToPem(csrRaw []byte) []byte {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	csrBlock := &pem.Block{
 		Type:  "CERTIFICATE REQUEST",
 		Bytes: csrRaw,
@@ -54,6 +60,7 @@ func certificateRequestToPem(csrRaw []byte) []byte {
 
 //CertificateGenerateRequest Generates raw certificate signing request
 func CertificateGenerateRequest(privateKey *rsa.PrivateKey, props TlsCertificateProps, fqdncn bool) (*certificates.CertificateSigningRequest, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	dnsNames := make([]string, 3)
 	dnsNames[0] = props.Service
 	dnsNames[1] = props.Service + "." + props.Namespace
@@ -110,11 +117,13 @@ func CertificateGenerateRequest(privateKey *rsa.PrivateKey, props TlsCertificate
 
 //GenerateInClusterServiceName The generated service name should be the common name for TLS certificate
 func GenerateInClusterServiceName(props TlsCertificateProps) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return props.Service + "." + props.Namespace + ".svc"
 }
 
 //TlsCertificateGetExpirationDate Gets NotAfter property from raw certificate
 func tlsCertificateGetExpirationDate(certData []byte) (*time.Time, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	block, _ := pem.Decode(certData)
 	if block == nil {
 		return nil, errors.New("Failed to decode PEM")
@@ -133,6 +142,7 @@ const timeReserveBeforeCertificateExpiration time.Duration = time.Hour * 24 * 30
 
 //IsTLSPairShouldBeUpdated checks if TLS pair has expited and needs to be updated
 func IsTLSPairShouldBeUpdated(tlsPair *TlsPemPair) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if tlsPair == nil {
 		return true
 	}

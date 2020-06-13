@@ -1,7 +1,10 @@
 package operator
 
 import (
+	"fmt"
+
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/engine/context"
 )
@@ -21,6 +24,7 @@ type VariableSubstitutionHandler = func(log logr.Logger, ctx context.EvalInterfa
 
 //CreateOperatorHandler returns the operator handler based on the operator used in condition
 func CreateOperatorHandler(log logr.Logger, ctx context.EvalInterface, op kyverno.ConditionOperator, subHandler VariableSubstitutionHandler) OperatorHandler {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch op {
 	case kyverno.Equal:
 		return NewEqualHandler(log, ctx, subHandler)

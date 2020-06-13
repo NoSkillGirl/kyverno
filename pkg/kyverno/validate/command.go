@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/utils"
 
 	"github.com/nirmata/kyverno/pkg/kyverno/common"
@@ -16,6 +17,7 @@ import (
 )
 
 func Command() *cobra.Command {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	cmd := &cobra.Command{
 		Use:     "validate",
 		Short:   "Validates kyverno policies",

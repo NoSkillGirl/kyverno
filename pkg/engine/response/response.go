@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jimlawless/whereami"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -40,6 +41,7 @@ type ResourceSpec struct {
 
 //GetKey returns the key
 func (rs ResourceSpec) GetKey() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return rs.Kind + "/" + rs.Namespace + "/" + rs.Name
 }
 
@@ -69,6 +71,7 @@ type RuleResponse struct {
 
 //ToString ...
 func (rr RuleResponse) ToString() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return fmt.Sprintf("rule %s (%s): %v", rr.Name, rr.Type, rr.Message)
 }
 
@@ -80,6 +83,7 @@ type RuleStats struct {
 
 //IsSuccesful checks if any rule has failed or not
 func (er EngineResponse) IsSuccesful() bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, r := range er.PolicyResponse.Rules {
 		if !r.Success {
 			return false
@@ -90,6 +94,7 @@ func (er EngineResponse) IsSuccesful() bool {
 
 //GetPatches returns all the patches joined
 func (er EngineResponse) GetPatches() [][]byte {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var patches [][]byte
 	for _, r := range er.PolicyResponse.Rules {
 		if r.Patches != nil {
@@ -102,15 +107,18 @@ func (er EngineResponse) GetPatches() [][]byte {
 
 //GetFailedRules returns failed rules
 func (er EngineResponse) GetFailedRules() []string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return er.getRules(false)
 }
 
 //GetSuccessRules returns success rules
 func (er EngineResponse) GetSuccessRules() []string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return er.getRules(true)
 }
 
 func (er EngineResponse) getRules(success bool) []string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var rules []string
 	for _, r := range er.PolicyResponse.Rules {
 		if r.Success == success {

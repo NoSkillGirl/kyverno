@@ -7,11 +7,13 @@ import (
 	"strconv"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/engine/context"
 )
 
 //NewEqualHandler returns handler to manage Equal operations
 func NewEqualHandler(log logr.Logger, ctx context.EvalInterface, subHandler VariableSubstitutionHandler) OperatorHandler {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return EqualHandler{
 		ctx:        ctx,
 		subHandler: subHandler,
@@ -28,6 +30,7 @@ type EqualHandler struct {
 
 //Evaluate evaluates expression with Equal Operator
 func (eh EqualHandler) Evaluate(key, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var err error
 	//TODO: decouple variables from evaluation
 	// substitute the variables
@@ -65,6 +68,7 @@ func (eh EqualHandler) Evaluate(key, value interface{}) bool {
 }
 
 func (eh EqualHandler) validateValueWithSlicePattern(key []interface{}, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if val, ok := value.([]interface{}); ok {
 		return reflect.DeepEqual(key, val)
 	}
@@ -73,6 +77,7 @@ func (eh EqualHandler) validateValueWithSlicePattern(key []interface{}, value in
 }
 
 func (eh EqualHandler) validateValueWithMapPattern(key map[string]interface{}, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if val, ok := value.(map[string]interface{}); ok {
 		return reflect.DeepEqual(key, val)
 	}
@@ -81,6 +86,7 @@ func (eh EqualHandler) validateValueWithMapPattern(key map[string]interface{}, v
 }
 
 func (eh EqualHandler) validateValuewithStringPattern(key string, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if val, ok := value.(string); ok {
 		return key == val
 	}
@@ -90,6 +96,7 @@ func (eh EqualHandler) validateValuewithStringPattern(key string, value interfac
 }
 
 func (eh EqualHandler) validateValuewithFloatPattern(key float64, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch typedValue := value.(type) {
 	case int:
 		// check that float has not fraction
@@ -121,6 +128,7 @@ func (eh EqualHandler) validateValuewithFloatPattern(key float64, value interfac
 }
 
 func (eh EqualHandler) validateValuewithBoolPattern(key bool, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	typedValue, ok := value.(bool)
 	if !ok {
 		eh.log.Info("Expected type bool", "value", value, "type", fmt.Sprintf("%T", value))
@@ -130,6 +138,7 @@ func (eh EqualHandler) validateValuewithBoolPattern(key bool, value interface{})
 }
 
 func (eh EqualHandler) validateValuewithIntPattern(key int64, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch typedValue := value.(type) {
 	case int:
 		return int64(typedValue) == key

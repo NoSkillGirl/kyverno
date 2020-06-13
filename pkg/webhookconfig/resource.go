@@ -2,6 +2,7 @@ package webhookconfig
 
 import (
 	"fmt"
+	"github.com/jimlawless/whereami"
 
 	"github.com/nirmata/kyverno/pkg/config"
 	admregapi "k8s.io/api/admissionregistration/v1beta1"
@@ -10,6 +11,7 @@ import (
 )
 
 func (wrc *WebhookRegistrationClient) constructDebugMutatingWebhookConfig(caData []byte) *admregapi.MutatingWebhookConfiguration {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := wrc.log
 	url := fmt.Sprintf("https://%s%s", wrc.serverIP, config.MutatingWebhookServicePath)
 	logger.V(4).Info("Debug MutatingWebhookConfig registered", "url", url)
@@ -34,6 +36,7 @@ func (wrc *WebhookRegistrationClient) constructDebugMutatingWebhookConfig(caData
 }
 
 func (wrc *WebhookRegistrationClient) constructMutatingWebhookConfig(caData []byte) *admregapi.MutatingWebhookConfiguration {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return &admregapi.MutatingWebhookConfiguration{
 		ObjectMeta: v1.ObjectMeta{
 			Name: config.MutatingWebhookConfigurationName,
@@ -59,6 +62,7 @@ func (wrc *WebhookRegistrationClient) constructMutatingWebhookConfig(caData []by
 
 //GetResourceMutatingWebhookConfigName returns the webhook configuration name
 func (wrc *WebhookRegistrationClient) GetResourceMutatingWebhookConfigName() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if wrc.serverIP != "" {
 		return config.MutatingWebhookConfigurationDebugName
 	}
@@ -67,6 +71,7 @@ func (wrc *WebhookRegistrationClient) GetResourceMutatingWebhookConfigName() str
 
 //RemoveResourceMutatingWebhookConfiguration removes mutating webhook configuration for all resources
 func (wrc *WebhookRegistrationClient) RemoveResourceMutatingWebhookConfiguration() error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	configName := wrc.GetResourceMutatingWebhookConfigName()
 	logger := wrc.log.WithValues("kind", MutatingWebhookConfigurationKind, "name", configName)
 	// delete webhook configuration
@@ -86,6 +91,7 @@ func (wrc *WebhookRegistrationClient) RemoveResourceMutatingWebhookConfiguration
 }
 
 func (wrc *WebhookRegistrationClient) constructDebugValidatingWebhookConfig(caData []byte) *admregapi.ValidatingWebhookConfiguration {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	url := fmt.Sprintf("https://%s%s", wrc.serverIP, config.ValidatingWebhookServicePath)
 
 	return &admregapi.ValidatingWebhookConfiguration{
@@ -109,6 +115,7 @@ func (wrc *WebhookRegistrationClient) constructDebugValidatingWebhookConfig(caDa
 }
 
 func (wrc *WebhookRegistrationClient) constructValidatingWebhookConfig(caData []byte) *admregapi.ValidatingWebhookConfiguration {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return &admregapi.ValidatingWebhookConfiguration{
 		ObjectMeta: v1.ObjectMeta{
 			Name: config.ValidatingWebhookConfigurationName,
@@ -134,6 +141,7 @@ func (wrc *WebhookRegistrationClient) constructValidatingWebhookConfig(caData []
 
 // GetResourceValidatingWebhookConfigName returns the webhook configuration name
 func (wrc *WebhookRegistrationClient) GetResourceValidatingWebhookConfigName() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if wrc.serverIP != "" {
 		return config.ValidatingWebhookConfigurationDebugName
 	}
@@ -143,6 +151,7 @@ func (wrc *WebhookRegistrationClient) GetResourceValidatingWebhookConfigName() s
 
 // RemoveResourceValidatingWebhookConfiguration deletes an existing webhook configuration
 func (wrc *WebhookRegistrationClient) RemoveResourceValidatingWebhookConfiguration() error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	configName := wrc.GetResourceValidatingWebhookConfigName()
 	logger := wrc.log.WithValues("kind", ValidatingWebhookConfigurationKind, "name", configName)
 	err := wrc.client.DeleteResource(ValidatingWebhookConfigurationKind, "", configName, false)

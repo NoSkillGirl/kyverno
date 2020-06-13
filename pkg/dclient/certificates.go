@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/config"
 	tls "github.com/nirmata/kyverno/pkg/tls"
 	certificates "k8s.io/api/certificates/v1beta1"
@@ -18,6 +19,7 @@ import (
 // Created pair is stored in cluster's secret.
 // Returns struct with key/certificate pair.
 func (c *Client) InitTLSPemPair(configuration *rest.Config, fqdncn bool) (*tls.TlsPemPair, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log
 	certProps, err := c.GetTLSCertProps(configuration)
 	if err != nil {
@@ -42,6 +44,7 @@ func (c *Client) InitTLSPemPair(configuration *rest.Config, fqdncn bool) (*tls.T
 //generateTlsPemPair Issues TLS certificate for webhook server using given PEM private key
 // Returns signed and approved TLS certificate in PEM format
 func (c *Client) generateTLSPemPair(props tls.TlsCertificateProps, fqdncn bool) (*tls.TlsPemPair, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	privateKey, err := tls.TLSGeneratePrivateKey()
 	if err != nil {
 		return nil, err
@@ -70,6 +73,7 @@ func (c *Client) generateTLSPemPair(props tls.TlsCertificateProps, fqdncn bool) 
 
 // Submits and approves certificate request, returns request which need to be fetched
 func (c *Client) submitAndApproveCertificateRequest(req *certificates.CertificateSigningRequest) (*certificates.CertificateSigningRequest, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log.WithName("submitAndApproveCertificateRequest")
 	certClient, err := c.GetCSRInterface()
 	if err != nil {
@@ -117,6 +121,7 @@ func (c *Client) submitAndApproveCertificateRequest(req *certificates.Certificat
 
 // Fetches certificate from given request. Tries to obtain certificate for maxWaitSeconds
 func (c *Client) fetchCertificateFromRequest(req *certificates.CertificateSigningRequest, maxWaitSeconds uint8) ([]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// TODO: react of SIGINT and SIGTERM
 	timeStart := time.Now()
 	for time.Since(timeStart) < time.Duration(maxWaitSeconds)*time.Second {
@@ -144,6 +149,7 @@ func (c *Client) fetchCertificateFromRequest(req *certificates.CertificateSignin
 
 //ReadRootCASecret returns the RootCA from the pre-defined secret
 func (c *Client) ReadRootCASecret() (result []byte) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log.WithName("ReadRootCASecret")
 	certProps, err := c.GetTLSCertProps(c.clientConfig)
 	if err != nil {
@@ -175,6 +181,7 @@ const rootCAKey string = "rootCA.crt"
 
 //ReadTlsPair Reads the pair of TLS certificate and key from the specified secret.
 func (c *Client) ReadTlsPair(props tls.TlsCertificateProps) *tls.TlsPemPair {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log.WithName("ReadTlsPair")
 	sname := generateTLSPairSecretName(props)
 	unstrSecret, err := c.GetResource(Secrets, props.Namespace, sname)
@@ -216,6 +223,7 @@ func (c *Client) ReadTlsPair(props tls.TlsCertificateProps) *tls.TlsPemPair {
 //WriteTlsPair Writes the pair of TLS certificate and key to the specified secret.
 // Updates existing secret or creates new one.
 func (c *Client) WriteTlsPair(props tls.TlsCertificateProps, pemPair *tls.TlsPemPair) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log.WithName("WriteTlsPair")
 	name := generateTLSPairSecretName(props)
 	_, err := c.GetResource(Secrets, props.Namespace, name)
@@ -259,15 +267,18 @@ func (c *Client) WriteTlsPair(props tls.TlsCertificateProps, pemPair *tls.TlsPem
 }
 
 func generateTLSPairSecretName(props tls.TlsCertificateProps) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return tls.GenerateInClusterServiceName(props) + ".kyverno-tls-pair"
 }
 
 func generateRootCASecretName(props tls.TlsCertificateProps) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return tls.GenerateInClusterServiceName(props) + ".kyverno-tls-ca"
 }
 
 //GetTLSCertProps provides the TLS Certificate Properties
 func (c *Client) GetTLSCertProps(configuration *rest.Config) (certProps tls.TlsCertificateProps, err error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	apiServerURL, err := url.Parse(configuration.Host)
 	if err != nil {
 		return certProps, err

@@ -3,6 +3,7 @@ package context
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/jimlawless/whereami"
 	"strings"
 
 	jmespath "github.com/jmespath/go-jmespath"
@@ -10,6 +11,7 @@ import (
 
 //Query the JSON context with JMESPATH search path
 func (ctx *Context) Query(query string) (interface{}, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var emptyResult interface{}
 	// check for white-listed variables
 	if !ctx.isWhiteListed(query) {
@@ -41,6 +43,7 @@ func (ctx *Context) Query(query string) (interface{}, error) {
 }
 
 func (ctx *Context) isWhiteListed(variable string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if len(ctx.whiteListVars) == 0 {
 		return true
 	}

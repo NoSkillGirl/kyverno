@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/engine/context"
 	"github.com/nirmata/kyverno/pkg/engine/response"
@@ -18,6 +19,7 @@ import (
 
 //Validate applies validation rules from policy on the resource
 func Validate(policyContext PolicyContext) (resp response.EngineResponse) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	startTime := time.Now()
 	policy := policyContext.Policy
 	newR := policyContext.NewResource
@@ -81,6 +83,7 @@ func Validate(policyContext PolicyContext) (resp response.EngineResponse) {
 }
 
 func startResultResponse(resp *response.EngineResponse, policy kyverno.ClusterPolicy, newR unstructured.Unstructured) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// set policy information
 	resp.PolicyResponse.Policy = policy.Name
 	// resource details
@@ -92,16 +95,19 @@ func startResultResponse(resp *response.EngineResponse, policy kyverno.ClusterPo
 }
 
 func endResultResponse(log logr.Logger, resp *response.EngineResponse, startTime time.Time) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	resp.PolicyResponse.ProcessingTime = time.Since(startTime)
 	log.V(4).Info("finshed processing", "processingTime", resp.PolicyResponse.ProcessingTime, "validationRulesApplied", resp.PolicyResponse.RulesAppliedCount)
 }
 
 func incrementAppliedCount(resp *response.EngineResponse) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// rules applied successfully count
 	resp.PolicyResponse.RulesAppliedCount++
 }
 
 func isRequestDenied(log logr.Logger, ctx context.EvalInterface, policy kyverno.ClusterPolicy, resource unstructured.Unstructured, admissionInfo kyverno.RequestInfo) *response.EngineResponse {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	resp := &response.EngineResponse{}
 
 	for _, rule := range policy.Spec.Rules {
@@ -140,6 +146,7 @@ func isRequestDenied(log logr.Logger, ctx context.EvalInterface, policy kyverno.
 }
 
 func validateResource(log logr.Logger, ctx context.EvalInterface, policy kyverno.ClusterPolicy, resource unstructured.Unstructured, admissionInfo kyverno.RequestInfo) *response.EngineResponse {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	resp := &response.EngineResponse{}
 	for _, rule := range policy.Spec.Rules {
 		if !rule.HasValidate() {
@@ -174,18 +181,21 @@ func validateResource(log logr.Logger, ctx context.EvalInterface, policy kyverno
 }
 
 func isSameResponse(oldResponse, newResponse *response.EngineResponse) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// if the response are same then return true
 	return isSamePolicyResponse(oldResponse.PolicyResponse, newResponse.PolicyResponse)
 
 }
 
 func isSamePolicyResponse(oldPolicyRespone, newPolicyResponse response.PolicyResponse) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// can skip policy and resource checks as they will be same
 	// compare rules
 	return isSameRules(oldPolicyRespone.Rules, newPolicyResponse.Rules)
 }
 
 func isSameRules(oldRules []response.RuleResponse, newRules []response.RuleResponse) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if len(oldRules) != len(newRules) {
 		return false
 	}
@@ -214,6 +224,7 @@ func isSameRules(oldRules []response.RuleResponse, newRules []response.RuleRespo
 
 // validatePatterns validate pattern and anyPattern
 func validatePatterns(log logr.Logger, ctx context.EvalInterface, resource unstructured.Unstructured, rule kyverno.Rule) (resp response.RuleResponse) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	startTime := time.Now()
 	logger := log.WithValues("rule", rule.Name)
 	logger.V(4).Info("start processing rule", "startTime", startTime)

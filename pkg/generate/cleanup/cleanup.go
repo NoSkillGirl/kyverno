@@ -1,13 +1,17 @@
 package cleanup
 
 import (
+	"fmt"
+
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	dclient "github.com/nirmata/kyverno/pkg/dclient"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
 func (c *Controller) processGR(gr kyverno.GenerateRequest) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := c.log.WithValues("kind", gr.Kind, "namespace", gr.Namespace, "name", gr.Name)
 	// 1- Corresponding policy has been deleted
 	// then we dont delete the generated resources
@@ -26,6 +30,7 @@ func (c *Controller) processGR(gr kyverno.GenerateRequest) error {
 }
 
 func ownerResourceExists(log logr.Logger, client *dclient.Client, gr kyverno.GenerateRequest) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	_, err := client.GetResource(gr.Spec.Resource.Kind, gr.Spec.Resource.Namespace, gr.Spec.Resource.Name)
 	// trigger resources has been deleted
 	if apierrors.IsNotFound(err) {
@@ -40,6 +45,7 @@ func ownerResourceExists(log logr.Logger, client *dclient.Client, gr kyverno.Gen
 }
 
 func deleteGeneratedResources(log logr.Logger, client *dclient.Client, gr kyverno.GenerateRequest) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, genResource := range gr.Status.GeneratedResources {
 		err := client.DeleteResource(genResource.Kind, genResource.Namespace, genResource.Name, false)
 		if apierrors.IsNotFound(err) {

@@ -3,6 +3,7 @@ package validate
 import (
 	"fmt"
 
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/engine/anchor"
 	"github.com/nirmata/kyverno/pkg/policy/common"
@@ -16,6 +17,7 @@ type Validate struct {
 
 //NewValidateFactory returns a new instance of Mutate validation checker
 func NewValidateFactory(rule kyverno.Validation) *Validate {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	m := Validate{
 		rule: rule,
 	}
@@ -24,6 +26,7 @@ func NewValidateFactory(rule kyverno.Validation) *Validate {
 
 //Validate validates the 'validate' rule
 func (v *Validate) Validate() (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	rule := v.rule
 	if err := v.validateOverlayPattern(); err != nil {
 		// no need to proceed ahead
@@ -48,6 +51,7 @@ func (v *Validate) Validate() (string, error) {
 
 // validateOverlayPattern checks one of pattern/anyPattern must exist
 func (v *Validate) validateOverlayPattern() error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	rule := v.rule
 	if rule.Pattern == nil && len(rule.AnyPattern) == 0 && rule.Deny == nil {
 		return fmt.Errorf("pattern, anyPattern or deny must be specified")

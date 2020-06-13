@@ -2,6 +2,7 @@ package policyviolation
 
 import (
 	"fmt"
+	"github.com/jimlawless/whereami"
 
 	"github.com/go-logr/logr"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
@@ -10,6 +11,7 @@ import (
 
 //GeneratePVsFromEngineResponse generate Violations from engine responses
 func GeneratePVsFromEngineResponse(ers []response.EngineResponse, log logr.Logger) (pvInfos []Info) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, er := range ers {
 		// ignore creation of PV for resources that are yet to be assigned a name
 		if er.PolicyResponse.Resource.Name == "" {
@@ -37,15 +39,18 @@ type Builder interface {
 type pvBuilder struct{}
 
 func newPvBuilder() *pvBuilder {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return &pvBuilder{}
 }
 
 func (pvb *pvBuilder) generate(info Info) kyverno.PolicyViolationTemplate {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	pv := pvb.build(info.PolicyName, info.Resource.GetKind(), info.Resource.GetNamespace(), info.Resource.GetName(), info.Rules)
 	return *pv
 }
 
 func (pvb *pvBuilder) build(policy, kind, namespace, name string, rules []kyverno.ViolatedRule) *kyverno.PolicyViolationTemplate {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	pv := &kyverno.PolicyViolationTemplate{
 		Spec: kyverno.PolicyViolationSpec{
 			Policy: policy,
@@ -70,6 +75,7 @@ func (pvb *pvBuilder) build(policy, kind, namespace, name string, rules []kyvern
 }
 
 func buildPVInfo(er response.EngineResponse) Info {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	info := Info{
 		PolicyName: er.PolicyResponse.Policy,
 		Resource:   er.PatchedResource,
@@ -79,6 +85,7 @@ func buildPVInfo(er response.EngineResponse) Info {
 }
 
 func buildViolatedRules(er response.EngineResponse) []kyverno.ViolatedRule {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var violatedRules []kyverno.ViolatedRule
 	for _, rule := range er.PolicyResponse.Rules {
 		if rule.Success {

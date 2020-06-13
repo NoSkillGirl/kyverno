@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/jimlawless/whereami"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -180,6 +181,7 @@ func NewWebhookServer(
 }
 
 func (ws *WebhookServer) handlerFunc(handler func(request *v1beta1.AdmissionRequest) *v1beta1.AdmissionResponse, filter bool) http.HandlerFunc {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return func(rw http.ResponseWriter, r *http.Request) {
 		startTime := time.Now()
 		ws.lastReqTime.SetTime(startTime)
@@ -213,6 +215,7 @@ func (ws *WebhookServer) handlerFunc(handler func(request *v1beta1.AdmissionRequ
 }
 
 func writeResponse(rw http.ResponseWriter, admissionReview *v1beta1.AdmissionReview) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	responseJSON, err := json.Marshal(admissionReview)
 	if err != nil {
 		http.Error(rw, fmt.Sprintf("Could not encode response: %v", err), http.StatusInternalServerError)
@@ -226,6 +229,7 @@ func writeResponse(rw http.ResponseWriter, admissionReview *v1beta1.AdmissionRev
 }
 
 func (ws *WebhookServer) resourceMutation(request *v1beta1.AdmissionRequest) *v1beta1.AdmissionResponse {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if excludeKyvernoResources(request.Kind.Kind) {
 		return &v1beta1.AdmissionResponse{
 			Allowed: true,
@@ -362,6 +366,7 @@ func (ws *WebhookServer) resourceMutation(request *v1beta1.AdmissionRequest) *v1
 }
 
 func (ws *WebhookServer) resourceValidation(request *v1beta1.AdmissionRequest) *v1beta1.AdmissionResponse {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := ws.log.WithName("resourceValidation").WithValues("uid", request.UID, "kind", request.Kind.Kind, "namespace", request.Namespace, "name", request.Name, "operation", request.Operation)
 
 	if ok := utils.HigherThanKubernetesVersion(ws.client, ws.log, 1, 14, 0); !ok {
@@ -471,6 +476,7 @@ func (ws *WebhookServer) resourceValidation(request *v1beta1.AdmissionRequest) *
 
 // RunAsync TLS server in separate thread and returns control immediately
 func (ws *WebhookServer) RunAsync(stopCh <-chan struct{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := ws.log
 	if !cache.WaitForCacheSync(stopCh, ws.pSynced, ws.rbSynced, ws.crbSynced) {
 		logger.Info("failed to sync informer cache")
@@ -493,6 +499,7 @@ func (ws *WebhookServer) RunAsync(stopCh <-chan struct{}) {
 
 // Stop TLS server and returns control after the server is shut down
 func (ws *WebhookServer) Stop(ctx context.Context) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := ws.log
 	// cleanUp
 	// remove the static webhookconfigurations
@@ -509,6 +516,7 @@ func (ws *WebhookServer) Stop(ctx context.Context) {
 // bodyToAdmissionReview creates AdmissionReview object from request body
 // Answers to the http.ResponseWriter if request is not valid
 func (ws *WebhookServer) bodyToAdmissionReview(request *http.Request, writer http.ResponseWriter) *v1beta1.AdmissionReview {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := ws.log
 	if request.Body == nil {
 		logger.Info("empty body", "req", request.URL.String())

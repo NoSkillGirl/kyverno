@@ -1,7 +1,10 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	rest "k8s.io/client-go/rest"
 	clientcmd "k8s.io/client-go/tools/clientcmd"
 )
@@ -72,12 +75,13 @@ var (
 	VerifyMutatingWebhookServicePath = "/verifymutate"
 	// LivenessServicePath is the path for check liveness health
 	LivenessServicePath = "/health/liveness"
-	// ReadinessServicePath is the path for check readness health 
+	// ReadinessServicePath is the path for check readness health
 	ReadinessServicePath = "/health/readiness"
 )
 
 //CreateClientConfig creates client config
 func CreateClientConfig(kubeconfig string, log logr.Logger) (*rest.Config, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := log.WithName("CreateClientConfig")
 	if kubeconfig == "" {
 		logger.Info("Using in-cluster configuration")

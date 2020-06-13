@@ -10,6 +10,7 @@ require (
 	github.com/googleapis/gnostic v0.3.1
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
 	github.com/imdario/mergo v0.3.8 // indirect
+	github.com/jimlawless/whereami v0.0.0-20160417220522-aebf70d4a772
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af
 	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/julienschmidt/httprouter v1.3.0

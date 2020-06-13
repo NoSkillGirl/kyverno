@@ -1,11 +1,13 @@
 package policy
 
 import (
+	"fmt"
 	"time"
 
 	informers "k8s.io/client-go/informers/core/v1"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	kyvernoclient "github.com/nirmata/kyverno/pkg/client/clientset/versioned"
 	"github.com/nirmata/kyverno/pkg/client/clientset/versioned/scheme"
@@ -168,6 +170,7 @@ func NewPolicyController(kyvernoClient *kyvernoclient.Clientset,
 }
 
 func (pc *PolicyController) canBackgroundProcess(p *kyverno.ClusterPolicy) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log.WithValues("policy", p.Name)
 	if !p.BackgroundProcessingEnabled() {
 		logger.V(4).Info("background processed is disabled")
@@ -183,6 +186,7 @@ func (pc *PolicyController) canBackgroundProcess(p *kyverno.ClusterPolicy) bool 
 }
 
 func (pc *PolicyController) addPolicy(obj interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log
 	p := obj.(*kyverno.ClusterPolicy)
 	if !pc.canBackgroundProcess(p) {
@@ -194,6 +198,7 @@ func (pc *PolicyController) addPolicy(obj interface{}) {
 }
 
 func (pc *PolicyController) updatePolicy(old, cur interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log
 	oldP := old.(*kyverno.ClusterPolicy)
 	curP := cur.(*kyverno.ClusterPolicy)
@@ -207,6 +212,7 @@ func (pc *PolicyController) updatePolicy(old, cur interface{}) {
 }
 
 func (pc *PolicyController) deletePolicy(obj interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log
 	p, ok := obj.(*kyverno.ClusterPolicy)
 	if !ok {
@@ -231,6 +237,7 @@ func (pc *PolicyController) deletePolicy(obj interface{}) {
 }
 
 func (pc *PolicyController) enqueue(policy *kyverno.ClusterPolicy) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log
 	key, err := cache.MetaNamespaceKeyFunc(policy)
 	if err != nil {
@@ -242,6 +249,7 @@ func (pc *PolicyController) enqueue(policy *kyverno.ClusterPolicy) {
 
 // Run begins watching and syncing.
 func (pc *PolicyController) Run(workers int, stopCh <-chan struct{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log
 
 	defer utilruntime.HandleCrash()
@@ -265,11 +273,13 @@ func (pc *PolicyController) Run(workers int, stopCh <-chan struct{}) {
 // worker runs a worker thread that just dequeues items, processes them, and marks them done.
 // It enforces that the syncHandler is never invoked concurrently with the same key.
 func (pc *PolicyController) worker() {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for pc.processNextWorkItem() {
 	}
 }
 
 func (pc *PolicyController) processNextWorkItem() bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// if policies exist before Kyverno get created, resource webhook configuration
 	// could not be registered as clusterpolicy.spec.background=false by default
 	// the policy controller would starts only when the first incoming policy is queued
@@ -287,6 +297,7 @@ func (pc *PolicyController) processNextWorkItem() bool {
 }
 
 func (pc *PolicyController) handleErr(err error, key interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log
 	if err == nil {
 		pc.queue.Forget(key)
@@ -305,6 +316,7 @@ func (pc *PolicyController) handleErr(err error, key interface{}) {
 }
 
 func (pc *PolicyController) syncPolicy(key string) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log
 	startTime := time.Now()
 	logger.V(4).Info("started syncing policy", "key", key, "startTime", startTime)
@@ -338,6 +350,7 @@ func (pc *PolicyController) syncPolicy(key string) error {
 }
 
 func (pc *PolicyController) deletePolicyViolations(key string) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if err := pc.deleteClusterPolicyViolations(key); err != nil {
 		pc.log.Error(err, "failed to delete policy violation", "key", key)
 	}
@@ -348,6 +361,7 @@ func (pc *PolicyController) deletePolicyViolations(key string) {
 }
 
 func (pc *PolicyController) deleteClusterPolicyViolations(policy string) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	cpvList, err := pc.getClusterPolicyViolationForPolicy(policy)
 	if err != nil {
 		return err
@@ -363,6 +377,7 @@ func (pc *PolicyController) deleteClusterPolicyViolations(policy string) error {
 }
 
 func (pc *PolicyController) deleteNamespacedPolicyViolations(policy string) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	nspvList, err := pc.getNamespacedPolicyViolationForPolicy(policy)
 	if err != nil {
 		return err
@@ -378,6 +393,7 @@ func (pc *PolicyController) deleteNamespacedPolicyViolations(policy string) erro
 }
 
 func (pc *PolicyController) getNamespacedPolicyViolationForPolicy(policy string) ([]*kyverno.PolicyViolation, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	policySelector, err := buildPolicyLabel(policy)
 	if err != nil {
 		return nil, err
@@ -405,10 +421,12 @@ type RealPVControl struct {
 
 //DeleteClusterPolicyViolation deletes the policy violation
 func (r RealPVControl) DeleteClusterPolicyViolation(name string) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return r.Client.KyvernoV1().ClusterPolicyViolations().Delete(name, &metav1.DeleteOptions{})
 }
 
 //DeleteNamespacedPolicyViolation deletes the namespaced policy violation
 func (r RealPVControl) DeleteNamespacedPolicyViolation(ns, name string) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return r.Client.KyvernoV1().PolicyViolations(ns).Delete(name, &metav1.DeleteOptions{})
 }

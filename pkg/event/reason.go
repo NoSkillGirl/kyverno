@@ -1,5 +1,11 @@
 package event
 
+import (
+	"fmt"
+
+	"github.com/jimlawless/whereami"
+)
+
 //Reason types of Event Reasons
 type Reason int
 
@@ -15,6 +21,7 @@ const (
 )
 
 func (r Reason) String() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return [...]string{
 		"PolicyViolation",
 		"PolicyApplied",

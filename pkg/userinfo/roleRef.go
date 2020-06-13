@@ -2,6 +2,7 @@ package userinfo
 
 import (
 	"fmt"
+	"github.com/jimlawless/whereami"
 	"strings"
 
 	"github.com/nirmata/kyverno/pkg/engine"
@@ -22,6 +23,7 @@ const (
 
 //GetRoleRef gets the list of roles and cluster roles for the incoming api-request
 func GetRoleRef(rbLister rbaclister.RoleBindingLister, crbLister rbaclister.ClusterRoleBindingLister, request *v1beta1.AdmissionRequest) (roles []string, clusterRoles []string, err error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	keys := append(request.UserInfo.Groups, request.UserInfo.Username)
 	if utils.SliceContains(keys, engine.ExcludeUserInfo...) {
 		return
@@ -56,6 +58,7 @@ func GetRoleRef(rbLister rbaclister.RoleBindingLister, crbLister rbaclister.Clus
 }
 
 func getRoleRefByRoleBindings(roleBindings []*rbacv1.RoleBinding, userInfo authenticationv1.UserInfo) (roles []string, clusterRoles []string, err error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, rolebinding := range roleBindings {
 		for _, subject := range rolebinding.Subjects {
 			if !matchSubjectsMap(subject, userInfo) {
@@ -76,6 +79,7 @@ func getRoleRefByRoleBindings(roleBindings []*rbacv1.RoleBinding, userInfo authe
 
 // RoleRef in ClusterRoleBindings can only reference a ClusterRole in the global namespace
 func getRoleRefByClusterRoleBindings(clusterroleBindings []*rbacv1.ClusterRoleBinding, userInfo authenticationv1.UserInfo) (clusterRoles []string, err error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, clusterRoleBinding := range clusterroleBindings {
 		for _, subject := range clusterRoleBinding.Subjects {
 			if !matchSubjectsMap(subject, userInfo) {
@@ -94,6 +98,7 @@ func getRoleRefByClusterRoleBindings(clusterroleBindings []*rbacv1.ClusterRoleBi
 // return true directly if found a match
 // subject.kind can only be ServiceAccount, User and Group
 func matchSubjectsMap(subject rbacv1.Subject, userInfo authenticationv1.UserInfo) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// ServiceAccount
 	if strings.Contains(userInfo.Username, SaPrefix) {
 		return matchServiceAccount(subject, userInfo)
@@ -106,6 +111,7 @@ func matchSubjectsMap(subject rbacv1.Subject, userInfo authenticationv1.UserInfo
 // matchServiceAccount checks if userInfo sa matche the subject sa
 // serviceaccount represents as saPrefix:namespace:name in userInfo
 func matchServiceAccount(subject rbacv1.Subject, userInfo authenticationv1.UserInfo) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	subjectServiceAccount := subject.Namespace + ":" + subject.Name
 	if userInfo.Username[len(SaPrefix):] != subjectServiceAccount {
 		return false
@@ -117,6 +123,7 @@ func matchServiceAccount(subject rbacv1.Subject, userInfo authenticationv1.UserI
 
 // matchUserOrGroup checks if userInfo contains user or group info in a subject
 func matchUserOrGroup(subject rbacv1.Subject, userInfo authenticationv1.UserInfo) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	keys := append(userInfo.Groups, userInfo.Username)
 	for _, key := range keys {
 		if subject.Name == key {

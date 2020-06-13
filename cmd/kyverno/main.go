@@ -296,8 +296,8 @@ func main() {
 	go statusSync.Run(1, stopCh)
 	openAPISync.Run(1, stopCh)
 
-	// verifys if the admission control is enabled and active
-	// resync: 60 seconds
+	// verifies if the admission control is enabled and active
+	// re sync: 60 seconds
 	// deadline: 60 seconds (send request)
 	// max deadline: deadline*3 (set the deployment annotation as false)
 	server.RunAsync(stopCh)

@@ -2,6 +2,7 @@ package webhookconfig
 
 import (
 	"fmt"
+	"github.com/jimlawless/whereami"
 	"sync"
 
 	"github.com/nirmata/kyverno/pkg/config"
@@ -11,6 +12,7 @@ import (
 )
 
 func (wrc *WebhookRegistrationClient) constructVerifyMutatingWebhookConfig(caData []byte) *admregapi.MutatingWebhookConfiguration {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return &admregapi.MutatingWebhookConfiguration{
 		ObjectMeta: v1.ObjectMeta{
 			Name: config.VerifyMutatingWebhookConfigurationName,
@@ -35,6 +37,7 @@ func (wrc *WebhookRegistrationClient) constructVerifyMutatingWebhookConfig(caDat
 }
 
 func (wrc *WebhookRegistrationClient) constructDebugVerifyMutatingWebhookConfig(caData []byte) *admregapi.MutatingWebhookConfiguration {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := wrc.log
 	url := fmt.Sprintf("https://%s%s", wrc.serverIP, config.VerifyMutatingWebhookServicePath)
 	logger.V(4).Info("Debug VerifyMutatingWebhookConfig is registered with url", "url", url)
@@ -59,6 +62,7 @@ func (wrc *WebhookRegistrationClient) constructDebugVerifyMutatingWebhookConfig(
 }
 
 func (wrc *WebhookRegistrationClient) removeVerifyWebhookMutatingWebhookConfig(wg *sync.WaitGroup) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	defer wg.Done()
 
 	var err error

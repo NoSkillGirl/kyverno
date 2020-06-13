@@ -2,12 +2,14 @@ package policyviolation
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	kyvernoclient "github.com/nirmata/kyverno/pkg/client/clientset/versioned"
 	kyvernov1 "github.com/nirmata/kyverno/pkg/client/clientset/versioned/typed/kyverno/v1"
@@ -47,6 +49,7 @@ type Generator struct {
 
 //NewDataStore returns an instance of data store
 func newDataStore() *dataStore {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	ds := dataStore{
 		data: make(map[string]Info),
 	}
@@ -59,6 +62,7 @@ type dataStore struct {
 }
 
 func (ds *dataStore) add(keyHash string, info Info) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	ds.mu.Lock()
 	defer ds.mu.Unlock()
 	// queue the key hash
@@ -66,12 +70,14 @@ func (ds *dataStore) add(keyHash string, info Info) {
 }
 
 func (ds *dataStore) lookup(keyHash string) Info {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	ds.mu.RLock()
 	defer ds.mu.RUnlock()
 	return ds.data[keyHash]
 }
 
 func (ds *dataStore) delete(keyHash string) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	ds.mu.Lock()
 	defer ds.mu.Unlock()
 	delete(ds.data, keyHash)
@@ -86,6 +92,7 @@ type Info struct {
 }
 
 func (i Info) toKey() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	keys := []string{
 		i.PolicyName,
 		i.Resource.GetKind(),
@@ -126,6 +133,7 @@ func NewPVGenerator(client *kyvernoclient.Clientset,
 }
 
 func (gen *Generator) enqueue(info Info) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// add to data map
 	keyHash := info.toKey()
 	// add to
@@ -136,6 +144,7 @@ func (gen *Generator) enqueue(info Info) {
 
 //Add queues a policy violation create request
 func (gen *Generator) Add(infos ...Info) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, info := range infos {
 		gen.enqueue(info)
 	}
@@ -143,6 +152,7 @@ func (gen *Generator) Add(infos ...Info) {
 
 // Run starts the workers
 func (gen *Generator) Run(workers int, stopCh <-chan struct{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := gen.log
 	defer utilruntime.HandleCrash()
 	logger.Info("start")
@@ -159,11 +169,13 @@ func (gen *Generator) Run(workers int, stopCh <-chan struct{}) {
 }
 
 func (gen *Generator) runWorker() {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for gen.processNextWorkitem() {
 	}
 }
 
 func (gen *Generator) handleErr(err error, key interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := gen.log
 	if err == nil {
 		gen.queue.Forget(key)
@@ -187,6 +199,7 @@ func (gen *Generator) handleErr(err error, key interface{}) {
 }
 
 func (gen *Generator) processNextWorkitem() bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := gen.log
 	obj, shutdown := gen.queue.Get()
 	if shutdown {
@@ -222,6 +235,7 @@ func (gen *Generator) processNextWorkitem() bool {
 }
 
 func (gen *Generator) syncHandler(info Info) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := gen.log
 	var handler pvGenerator
 	builder := newPvBuilder()

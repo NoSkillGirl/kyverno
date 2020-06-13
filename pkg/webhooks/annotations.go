@@ -2,12 +2,14 @@ package webhooks
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	yamlv2 "gopkg.in/yaml.v2"
 
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/engine"
 	"github.com/nirmata/kyverno/pkg/engine/response"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -39,6 +41,7 @@ var operationToPastTense = map[string]string{
 }
 
 func generateAnnotationPatches(engineResponses []response.EngineResponse, log logr.Logger) []byte {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var annotations map[string]string
 
 	for _, er := range engineResponses {
@@ -97,6 +100,7 @@ func generateAnnotationPatches(engineResponses []response.EngineResponse, log lo
 }
 
 func annotationFromEngineResponses(engineResponses []response.EngineResponse, log logr.Logger) []byte {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var annotationContent = make(map[string]string)
 	for _, engineResponse := range engineResponses {
 		if !engineResponse.IsSuccesful() {
@@ -127,6 +131,7 @@ func annotationFromEngineResponses(engineResponses []response.EngineResponse, lo
 }
 
 func annotationFromPolicyResponse(policyResponse response.PolicyResponse, log logr.Logger) []rulePatch {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var rulePatches []rulePatch
 	for _, ruleInfo := range policyResponse.Rules {
 		for _, patch := range ruleInfo.Patches {
@@ -153,6 +158,7 @@ func annotationFromPolicyResponse(policyResponse response.PolicyResponse, log lo
 
 // checkPodTemplateAnn checks if a Pod has annotation "pod-policies.kyverno.io/autogen-applied"
 func checkPodTemplateAnnotation(resource unstructured.Unstructured) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if resource.GetKind() == "Pod" {
 		ann := resource.GetAnnotations()
 		if _, ok := ann[engine.PodTemplateAnnotation]; ok {

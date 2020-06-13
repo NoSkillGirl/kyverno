@@ -3,10 +3,13 @@ package validate
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/jimlawless/whereami"
 )
 
 // convertToString converts value to string
 func convertToString(value interface{}) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch typed := value.(type) {
 	case string:
 		return string(typed), nil
@@ -22,6 +25,7 @@ func convertToString(value interface{}) (string, error) {
 }
 
 func getRawKeyIfWrappedWithAttributes(str string) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if len(str) < 2 {
 		return str
 	}

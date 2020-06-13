@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/engine/context"
 	"github.com/nirmata/kyverno/pkg/engine/mutate"
@@ -16,6 +17,7 @@ import (
 )
 
 func mutateResourceWithOverlay(resource unstructured.Unstructured, overlay interface{}) (unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	patches, err := mutate.MutateResourceWithOverlay(resource.UnstructuredContent(), overlay)
 	if err != nil {
 		return unstructured.Unstructured{}, err
@@ -47,6 +49,7 @@ func mutateResourceWithOverlay(resource unstructured.Unstructured, overlay inter
 
 // ForceMutate does not check any conditions, it simply mutates the given resource
 func ForceMutate(ctx context.EvalInterface, policy kyverno.ClusterPolicy, resource unstructured.Unstructured) (unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var err error
 	for _, rule := range policy.Spec.Rules {
 		if !rule.HasMutate() {
@@ -84,6 +87,7 @@ func ForceMutate(ctx context.EvalInterface, policy kyverno.ClusterPolicy, resour
 }
 
 func replaceSubstituteVariables(overlay interface{}) interface{} {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	overlayRaw, err := json.Marshal(overlay)
 	if err != nil {
 		return overlay

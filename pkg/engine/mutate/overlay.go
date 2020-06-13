@@ -15,6 +15,7 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/engine/anchor"
 	"github.com/nirmata/kyverno/pkg/engine/response"
 	"github.com/nirmata/kyverno/pkg/engine/utils"
@@ -22,6 +23,7 @@ import (
 
 // ProcessOverlay processes mutation overlay on the resource
 func ProcessOverlay(log logr.Logger, ruleName string, overlay interface{}, resource unstructured.Unstructured) (resp response.RuleResponse, patchedResource unstructured.Unstructured) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	startTime := time.Now()
 	logger := log.WithValues("rule", ruleName)
 	logger.V(4).Info("started applying overlay rule", "startTime", startTime)
@@ -105,6 +107,7 @@ func ProcessOverlay(log logr.Logger, ruleName string, overlay interface{}, resou
 }
 
 func processOverlayPatches(log logr.Logger, resource, overlay interface{}) ([][]byte, overlayError) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if path, overlayerr := meetConditions(log, resource, overlay); !reflect.DeepEqual(overlayerr, overlayError{}) {
 		switch overlayerr.statusCode {
 		// anchor key does not exist in the resource, skip applying policy
@@ -129,12 +132,14 @@ func processOverlayPatches(log logr.Logger, resource, overlay interface{}) ([][]
 
 // MutateResourceWithOverlay is a start of overlaying process
 func MutateResourceWithOverlay(resource, pattern interface{}) ([][]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// It assumes that mutation is started from root, so "/" is passed
 	return applyOverlay(resource, pattern, "/")
 }
 
 // applyOverlay detects type of current item and goes down through overlay and resource trees applying overlay
 func applyOverlay(resource, overlay interface{}, path string) ([][]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	// resource item exists but has different type - replace
 	// all subtree within this path by overlay
@@ -151,6 +156,7 @@ func applyOverlay(resource, overlay interface{}, path string) ([][]byte, error) 
 
 // applyOverlayForSameTypes is applyOverlay for cases when TypeOf(resource) == TypeOf(overlay)
 func applyOverlayForSameTypes(resource, overlay interface{}, path string) ([][]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var appliedPatches [][]byte
 
 	// detect the type of resource and overlay and select corresponding handler
@@ -187,6 +193,7 @@ func applyOverlayForSameTypes(resource, overlay interface{}, path string) ([][]b
 
 // for each overlay and resource map elements applies overlay
 func applyOverlayToMap(resourceMap, overlayMap map[string]interface{}, path string) ([][]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var appliedPatches [][]byte
 
 	for key, value := range overlayMap {
@@ -224,6 +231,7 @@ func applyOverlayToMap(resourceMap, overlayMap map[string]interface{}, path stri
 
 // for each overlay and resource array elements applies overlay
 func applyOverlayToArray(resource, overlay []interface{}, path string) ([][]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var appliedPatches [][]byte
 
 	if 0 == len(overlay) {
@@ -250,6 +258,7 @@ func applyOverlayToArray(resource, overlay []interface{}, path string) ([][]byte
 
 // applyOverlayToArrayOfSameTypes applies overlay to array elements if they (resource and overlay elements) have same type
 func applyOverlayToArrayOfSameTypes(resource, overlay []interface{}, path string) ([][]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var appliedPatches [][]byte
 
 	switch overlay[0].(type) {
@@ -275,6 +284,7 @@ func applyOverlayToArrayOfSameTypes(resource, overlay []interface{}, path string
 
 // Array of maps needs special handling as far as it can have anchors.
 func applyOverlayToArrayOfMaps(resource, overlay []interface{}, path string) ([][]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var appliedPatches [][]byte
 
 	lastElementIdx := len(resource)
@@ -316,6 +326,7 @@ func applyOverlayToArrayOfMaps(resource, overlay []interface{}, path string) ([]
 }
 
 func applyOverlayWithAnchors(resource []interface{}, overlay interface{}, path string) ([][]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var appliedPatches [][]byte
 
 	for i, resourceElement := range resource {
@@ -332,14 +343,17 @@ func applyOverlayWithAnchors(resource []interface{}, overlay interface{}, path s
 }
 
 func insertSubtree(overlay interface{}, path string) ([]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return processSubtree(overlay, path, "add")
 }
 
 func replaceSubtree(overlay interface{}, path string) ([]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return processSubtree(overlay, path, "replace")
 }
 
 func processSubtree(overlay interface{}, path string, op string) ([]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	if len(path) > 1 && path[len(path)-1] == '/' {
 		path = path[:len(path)-1]
@@ -365,6 +379,7 @@ func processSubtree(overlay interface{}, path string, op string) ([]byte, error)
 }
 
 func preparePath(path string) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if path == "" {
 		path = "/"
 	}
@@ -381,6 +396,7 @@ func preparePath(path string) string {
 
 // converts overlay to JSON string to be inserted into the JSON Patch
 func prepareJSONValue(overlay interface{}) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var err error
 	// Need to remove anchors from the overlay struct
 	overlayWithoutAnchors := removeAnchorFromSubTree(overlay)
@@ -394,6 +410,7 @@ func prepareJSONValue(overlay interface{}) string {
 }
 
 func removeAnchorFromSubTree(overlay interface{}) interface{} {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var result interface{}
 	switch typed := overlay.(type) {
 	case map[string]interface{}:
@@ -412,6 +429,7 @@ func removeAnchorFromSubTree(overlay interface{}) interface{} {
 }
 
 func removeAnchroFromMap(overlay map[string]interface{}) map[string]interface{} {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	result := make(map[string]interface{})
 	for k, v := range overlay {
 		result[getRawKeyIfWrappedWithAttributes(k)] = removeAnchorFromSubTree(v)
@@ -422,6 +440,7 @@ func removeAnchroFromMap(overlay map[string]interface{}) map[string]interface{} 
 // Anchor has pattern value, so resource shouldn't be mutated with it
 // If entire subtree has only anchor keys - we should skip inserting it
 func hasOnlyAnchors(overlay interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch typed := overlay.(type) {
 	case map[string]interface{}:
 		if anchors := utils.GetAnchorsFromMap(typed); len(anchors) == len(typed) {
@@ -448,6 +467,7 @@ func hasOnlyAnchors(overlay interface{}) bool {
 
 // Checks if subtree has anchors
 func hasNestedAnchors(overlay interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch typed := overlay.(type) {
 	case map[string]interface{}:
 		if anchors := utils.GetAnchorsFromMap(typed); len(anchors) > 0 {
@@ -473,6 +493,7 @@ func hasNestedAnchors(overlay interface{}) bool {
 }
 
 func wrapBoolean(patchStr string) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	reTrue := regexp.MustCompile(`:\s*true\s*`)
 	if idx := reTrue.FindStringIndex(patchStr); len(idx) != 0 {
 		return fmt.Sprintf("%s:\"true\"%s", patchStr[:idx[0]], patchStr[idx[1]:])

@@ -2,6 +2,7 @@ package policyviolation
 
 import (
 	"fmt"
+	"github.com/jimlawless/whereami"
 	"reflect"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 )
 
 func createOwnerReference(resource *unstructured.Unstructured) (metav1.OwnerReference, bool) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	controllerFlag := true
 	blockOwnerDeletionFlag := true
 
@@ -40,6 +42,7 @@ func createOwnerReference(resource *unstructured.Unstructured) (metav1.OwnerRefe
 }
 
 func retryGetResource(client *client.Client, rspec kyverno.ResourceSpec) (*unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var i int
 	var obj *unstructured.Unstructured
 	var err error
@@ -69,6 +72,7 @@ func retryGetResource(client *client.Client, rspec kyverno.ResourceSpec) (*unstr
 }
 
 func converLabelToSelector(labelMap map[string]string) (labels.Selector, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	ls := &metav1.LabelSelector{}
 	err := metav1.Convert_Map_string_To_string_To_v1_LabelSelector(&labelMap, ls, nil)
 	if err != nil {
@@ -89,10 +93,12 @@ type violationCount struct {
 }
 
 func (vc violationCount) PolicyName() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return vc.policyName
 }
 
 func (vc violationCount) UpdateStatus(status kyverno.PolicyStatus) kyverno.PolicyStatus {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	var ruleNameToViolations = make(map[string]int)
 	for _, rule := range vc.violatedRules {
@@ -110,6 +116,7 @@ func (vc violationCount) UpdateStatus(status kyverno.PolicyStatus) kyverno.Polic
 // hasViolationSpecChanged returns true if oldSpec & newSpec
 // are identical, exclude message in violated rules
 func hasViolationSpecChanged(new, old *kyverno.PolicyViolationSpec) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if new.Policy != old.Policy {
 		return true
 	}

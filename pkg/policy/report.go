@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/engine/response"
 	"github.com/nirmata/kyverno/pkg/event"
 	"github.com/nirmata/kyverno/pkg/policyviolation"
@@ -13,6 +14,7 @@ import (
 // - has violation -> report
 // - no violation -> cleanup policy violations
 func (pc *PolicyController) cleanupAndReport(engineResponses []response.EngineResponse) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log
 	// generate Events
 	eventInfos := generateEvents(pc.log, engineResponses)
@@ -31,6 +33,7 @@ func (pc *PolicyController) cleanupAndReport(engineResponses []response.EngineRe
 }
 
 func generateEvents(log logr.Logger, ers []response.EngineResponse) []event.Info {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var eventInfos []event.Info
 	for _, er := range ers {
 		if er.IsSuccesful() {
@@ -42,6 +45,7 @@ func generateEvents(log logr.Logger, ers []response.EngineResponse) []event.Info
 }
 
 func generateEventsPerEr(log logr.Logger, er response.EngineResponse) []event.Info {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := log.WithValues("policy", er.PolicyResponse.Policy, "kind", er.PolicyResponse.Resource.Kind, "namespace", er.PolicyResponse.Resource.Namespace, "name", er.PolicyResponse.Resource.Name)
 	var eventInfos []event.Info
 	logger.V(4).Info("reporting results for policy")

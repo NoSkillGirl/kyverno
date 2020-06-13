@@ -1,6 +1,7 @@
 package policy
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 	"sync"
@@ -9,6 +10,7 @@ import (
 	listerv1 "k8s.io/client-go/listers/core/v1"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	"github.com/minio/minio/pkg/wildcard"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/config"
@@ -22,6 +24,7 @@ import (
 )
 
 func (pc *PolicyController) processExistingResources(policy kyverno.ClusterPolicy) []response.EngineResponse {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log.WithValues("policy", policy.Name)
 	// Parse through all the resources
 	// drops the cache after configured rebuild time
@@ -57,6 +60,7 @@ func (pc *PolicyController) processExistingResources(policy kyverno.ClusterPolic
 }
 
 func (pc *PolicyController) listResources(policy kyverno.ClusterPolicy) map[string]unstructured.Unstructured {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// key uid
 	resourceMap := map[string]unstructured.Unstructured{}
 
@@ -86,6 +90,7 @@ func (pc *PolicyController) listResources(policy kyverno.ClusterPolicy) map[stri
 }
 
 func getNamespacesForRule(rule *kyverno.Rule, nslister listerv1.NamespaceLister, log logr.Logger) []string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if len(rule.MatchResources.Namespaces) == 0 {
 		return getAllNamespaces(nslister, log)
 	}
@@ -109,6 +114,7 @@ func getNamespacesForRule(rule *kyverno.Rule, nslister listerv1.NamespaceLister,
 }
 
 func hasWildcard(s string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if s == "" {
 		return false
 	}
@@ -117,6 +123,7 @@ func hasWildcard(s string) bool {
 }
 
 func getMatchingNamespaces(wildcards []string, nslister listerv1.NamespaceLister, log logr.Logger) []string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	all := getAllNamespaces(nslister, log)
 	if len(all) == 0 {
 		return all
@@ -135,6 +142,7 @@ func getMatchingNamespaces(wildcards []string, nslister listerv1.NamespaceLister
 }
 
 func getAllNamespaces(nslister listerv1.NamespaceLister, log logr.Logger) []string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var results []string
 	namespaces, err := nslister.List(labels.NewSelector())
 	if err != nil {
@@ -150,6 +158,7 @@ func getAllNamespaces(nslister listerv1.NamespaceLister, log logr.Logger) []stri
 }
 
 func getResourcesPerNamespace(kind string, client *client.Client, namespace string, rule kyverno.Rule, configHandler config.Interface, log logr.Logger) map[string]unstructured.Unstructured {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	resourceMap := map[string]unstructured.Unstructured{}
 	// merge include and exclude label selector values
 	ls := rule.MatchResources.Selector
@@ -194,6 +203,7 @@ func getResourcesPerNamespace(kind string, client *client.Client, namespace stri
 }
 
 func excludeResources(included map[string]unstructured.Unstructured, exclude kyverno.ResourceDescription, configHandler config.Interface, log logr.Logger) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if reflect.DeepEqual(exclude, (kyverno.ResourceDescription{})) {
 		return
 	}
@@ -307,6 +317,7 @@ const (
 
 // merge b into a map
 func mergeResources(a, b map[string]unstructured.Unstructured) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for k, v := range b {
 		a[k] = v
 	}
@@ -314,6 +325,7 @@ func mergeResources(a, b map[string]unstructured.Unstructured) {
 
 //NewResourceManager returns a new ResourceManager
 func NewResourceManager(rebuildTime int64) *ResourceManager {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	rm := ResourceManager{
 		data:        make(map[string]interface{}),
 		time:        time.Now(),
@@ -344,6 +356,7 @@ type resourceManager interface {
 //Drop drop the cache after every rebuild interval mins
 //TODO: or drop based on the size
 func (rm *ResourceManager) Drop() {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	timeSince := time.Since(rm.time)
 	if timeSince > time.Duration(rm.rebuildTime)*time.Second {
 		rm.mux.Lock()
@@ -357,6 +370,7 @@ var empty struct{}
 
 //RegisterResource stores if the policy is processed on this resource version
 func (rm *ResourceManager) RegisterResource(policy, pv, kind, ns, name, rv string) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	rm.mux.Lock()
 	defer rm.mux.Unlock()
 	// add the resource
@@ -366,6 +380,7 @@ func (rm *ResourceManager) RegisterResource(policy, pv, kind, ns, name, rv strin
 
 //ProcessResource returns true if the policy was not applied on the resource
 func (rm *ResourceManager) ProcessResource(policy, pv, kind, ns, name, rv string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	rm.mux.RLock()
 	defer rm.mux.RUnlock()
 
@@ -375,10 +390,12 @@ func (rm *ResourceManager) ProcessResource(policy, pv, kind, ns, name, rv string
 }
 
 func buildKey(policy, pv, kind, ns, name, rv string) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return policy + "/" + pv + "/" + kind + "/" + ns + "/" + name + "/" + rv
 }
 
 func skipPodApplication(resource unstructured.Unstructured, log logr.Logger) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if resource.GetKind() != "Pod" {
 		return false
 	}

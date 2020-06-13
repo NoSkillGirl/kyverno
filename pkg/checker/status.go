@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	dclient "github.com/nirmata/kyverno/pkg/dclient"
 	"github.com/nirmata/kyverno/pkg/event"
 )
@@ -34,16 +35,19 @@ type StatusControl struct {
 
 //SuccessStatus ...
 func (vc StatusControl) SuccessStatus() error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return vc.setStatus("true")
 }
 
 //FailedStatus ...
 func (vc StatusControl) FailedStatus() error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return vc.setStatus("false")
 }
 
 // NewVerifyControl ...
 func NewVerifyControl(client *dclient.Client, eventGen event.Interface, log logr.Logger) *StatusControl {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return &StatusControl{
 		client:   client,
 		eventGen: eventGen,
@@ -52,6 +56,7 @@ func NewVerifyControl(client *dclient.Client, eventGen event.Interface, log logr
 }
 
 func (vc StatusControl) setStatus(status string) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := vc.log.WithValues("name", deployName, "namespace", deployNamespace)
 	var ann map[string]string
 	var err error
@@ -94,6 +99,7 @@ func (vc StatusControl) setStatus(status string) error {
 }
 
 func createStatusUpdateEvent(status string, eventGen event.Interface) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	e := event.Info{}
 	e.Kind = "Deployment"
 	e.Namespace = "kyverno"
@@ -105,6 +111,7 @@ func createStatusUpdateEvent(status string, eventGen event.Interface) {
 
 //IncrementAnnotation ...
 func (vc StatusControl) IncrementAnnotation() error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := vc.log
 	var ann map[string]string
 	var err error

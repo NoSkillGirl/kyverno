@@ -1,10 +1,14 @@
 package policy
 
 import (
+	"fmt"
+
+	"github.com/jimlawless/whereami"
 	"k8s.io/apimachinery/pkg/labels"
 )
 
 func (pc *PolicyController) removeResourceWebhookConfiguration() error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log
 	var err error
 	// get all existing policies
@@ -25,5 +29,6 @@ func (pc *PolicyController) removeResourceWebhookConfiguration() error {
 }
 
 func (pc *PolicyController) registerResourceWebhookConfiguration() {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	pc.resourceWebhookWatcher.RegisterResourceWebhook()
 }

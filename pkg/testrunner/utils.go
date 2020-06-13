@@ -1,8 +1,11 @@
 package testrunner
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
+
+	"github.com/jimlawless/whereami"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -14,6 +17,7 @@ const (
 
 // LoadFile loads file in byte buffer
 func LoadFile(path string) ([]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil, err
 	}
@@ -31,6 +35,7 @@ var kindToResource = map[string]string{
 }
 
 func getResourceFromKind(kind string) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if resource, ok := kindToResource[kind]; ok {
 		return resource
 	}
@@ -39,6 +44,7 @@ func getResourceFromKind(kind string) string {
 
 //ConvertToUnstructured converts a resource to unstructured format
 func ConvertToUnstructured(data []byte) (*unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	resource := &unstructured.Unstructured{}
 	err := resource.UnmarshalJSON(data)
 	if err != nil {

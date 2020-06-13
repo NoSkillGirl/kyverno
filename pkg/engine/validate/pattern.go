@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	"github.com/minio/minio/pkg/wildcard"
 	"github.com/nirmata/kyverno/pkg/engine/operator"
 	apiresource "k8s.io/apimachinery/pkg/api/resource"
@@ -23,6 +24,7 @@ const (
 
 // ValidateValueWithPattern validates value with operators and wildcards
 func ValidateValueWithPattern(log logr.Logger, value, pattern interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch typedPattern := pattern.(type) {
 	case bool:
 		typedValue, ok := value.(bool)
@@ -55,6 +57,7 @@ func ValidateValueWithPattern(log logr.Logger, value, pattern interface{}) bool 
 }
 
 func validateValueWithMapPattern(log logr.Logger, value interface{}, typedPattern map[string]interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// verify the type of the resource value is map[string]interface,
 	// we only check for existence of object, not the equality of content and value
 	//TODO: check if adding
@@ -68,6 +71,7 @@ func validateValueWithMapPattern(log logr.Logger, value interface{}, typedPatter
 
 // Handler for int values during validation process
 func validateValueWithIntPattern(log logr.Logger, value interface{}, pattern int64) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch typedValue := value.(type) {
 	case int:
 		return int64(typedValue) == pattern
@@ -97,6 +101,7 @@ func validateValueWithIntPattern(log logr.Logger, value interface{}, pattern int
 
 // Handler for float values during validation process
 func validateValueWithFloatPattern(log logr.Logger, value interface{}, pattern float64) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch typedValue := value.(type) {
 	case int:
 		// check that float has no fraction
@@ -130,6 +135,7 @@ func validateValueWithFloatPattern(log logr.Logger, value interface{}, pattern f
 
 // Handler for nil values during validation process
 func validateValueWithNilPattern(log logr.Logger, value interface{}) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch typed := value.(type) {
 	case float64:
 		return typed == 0.0
@@ -154,6 +160,7 @@ func validateValueWithNilPattern(log logr.Logger, value interface{}) bool {
 
 // Handler for pattern values during validation process
 func validateValueWithStringPatterns(log logr.Logger, value interface{}, pattern string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	statements := strings.Split(pattern, "|")
 	for _, statement := range statements {
 		statement = strings.Trim(statement, " ")
@@ -168,6 +175,7 @@ func validateValueWithStringPatterns(log logr.Logger, value interface{}, pattern
 // Handler for single pattern value during validation process
 // Detects if pattern has a number
 func validateValueWithStringPattern(log logr.Logger, value interface{}, pattern string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	operator := operator.GetOperatorFromStringPattern(pattern)
 	pattern = pattern[len(operator):]
 	number, str := getNumberAndStringPartsFromPattern(pattern)
@@ -181,6 +189,7 @@ func validateValueWithStringPattern(log logr.Logger, value interface{}, pattern 
 
 // Handler for string values
 func validateString(log logr.Logger, value interface{}, pattern string, operatorVariable operator.Operator) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if operator.NotEqual == operatorVariable || operator.Equal == operatorVariable {
 		strValue, ok := value.(string)
 		if !ok {
@@ -203,6 +212,7 @@ func validateString(log logr.Logger, value interface{}, pattern string, operator
 // validateNumberWithStr compares quantity if pattern type is quantity
 //  or a wildcard match to pattern string
 func validateNumberWithStr(log logr.Logger, value interface{}, pattern string, operator operator.Operator) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	typedValue, err := convertToString(value)
 	if err != nil {
 		log.Error(err, "failed to convert to string")
@@ -230,6 +240,7 @@ func validateNumberWithStr(log logr.Logger, value interface{}, pattern string, o
 }
 
 func compareQuantity(value, pattern apiresource.Quantity, op operator.Operator) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	result := value.Cmp(pattern)
 	switch op {
 	case operator.Equal:
@@ -251,6 +262,7 @@ func compareQuantity(value, pattern apiresource.Quantity, op operator.Operator) 
 
 // detects numerical and string parts in pattern and returns them
 func getNumberAndStringPartsFromPattern(pattern string) (number, str string) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	regexpStr := `^(\d*(\.\d+)?)(.*)`
 	re := regexp.MustCompile(regexpStr)
 	matches := re.FindAllStringSubmatch(pattern, -1)

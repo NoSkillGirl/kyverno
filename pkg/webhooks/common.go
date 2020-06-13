@@ -2,6 +2,7 @@ package webhooks
 
 import (
 	"fmt"
+	"github.com/jimlawless/whereami"
 	"strings"
 
 	"github.com/go-logr/logr"
@@ -16,6 +17,7 @@ import (
 
 // isResponseSuccesful return true if all responses are successful
 func isResponseSuccesful(engineReponses []response.EngineResponse) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, er := range engineReponses {
 		if !er.IsSuccesful() {
 			return false
@@ -27,6 +29,7 @@ func isResponseSuccesful(engineReponses []response.EngineResponse) bool {
 // returns true -> if there is even one policy that blocks resource request
 // returns false -> if all the policies are meant to report only, we dont block resource request
 func toBlockResource(engineReponses []response.EngineResponse, log logr.Logger) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, er := range engineReponses {
 		if !er.IsSuccesful() && er.PolicyResponse.ValidationFailureAction == Enforce {
 			log.Info("spec.ValidationFailureAction set to enforcel blocking resource request", "policy", er.PolicyResponse.Policy)
@@ -39,6 +42,7 @@ func toBlockResource(engineReponses []response.EngineResponse, log logr.Logger) 
 
 // getEnforceFailureErrorMsg gets the error messages for failed enforce policy
 func getEnforceFailureErrorMsg(engineResponses []response.EngineResponse) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	policyToRule := make(map[string]interface{})
 	var resourceName string
 	for _, er := range engineResponses {
@@ -61,6 +65,7 @@ func getEnforceFailureErrorMsg(engineResponses []response.EngineResponse) string
 
 // getErrorMsg gets all failed engine response message
 func getErrorMsg(engineReponses []response.EngineResponse) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var str []string
 	var resourceInfo string
 
@@ -83,6 +88,7 @@ func getErrorMsg(engineReponses []response.EngineResponse) string {
 type ArrayFlags []string
 
 func (i *ArrayFlags) String() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var sb strings.Builder
 	for _, str := range *i {
 		sb.WriteString(str)
@@ -92,6 +98,7 @@ func (i *ArrayFlags) String() string {
 
 //Set setter for array flags
 func (i *ArrayFlags) Set(value string) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	*i = append(*i, value)
 	return nil
 }
@@ -103,6 +110,7 @@ const (
 )
 
 func processResourceWithPatches(patch []byte, resource []byte, log logr.Logger) []byte {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if patch == nil {
 		return resource
 	}
@@ -116,6 +124,7 @@ func processResourceWithPatches(patch []byte, resource []byte, log logr.Logger) 
 }
 
 func containRBACinfo(policies []*kyverno.ClusterPolicy) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, policy := range policies {
 		for _, rule := range policy.Spec.Rules {
 			if len(rule.MatchResources.Roles) > 0 || len(rule.MatchResources.ClusterRoles) > 0 || len(rule.ExcludeResources.Roles) > 0 || len(rule.ExcludeResources.ClusterRoles) > 0 {
@@ -128,6 +137,7 @@ func containRBACinfo(policies []*kyverno.ClusterPolicy) bool {
 
 // extracts the new and old resource as unstructured
 func extractResources(newRaw []byte, request *v1beta1.AdmissionRequest) (unstructured.Unstructured, unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var emptyResource unstructured.Unstructured
 
 	// New Resource
@@ -158,6 +168,7 @@ func extractResources(newRaw []byte, request *v1beta1.AdmissionRequest) (unstruc
 
 // convertResource converts raw bytes to an unstructured object
 func convertResource(raw []byte, group, version, kind, namespace string) (unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	obj, err := engineutils.ConvertToUnstructured(raw)
 	if err != nil {
 		return unstructured.Unstructured{}, fmt.Errorf("failed to convert raw to unstructured: %v", err)
@@ -169,6 +180,7 @@ func convertResource(raw []byte, group, version, kind, namespace string) (unstru
 }
 
 func excludeKyvernoResources(kind string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch kind {
 	case "ClusterPolicy", "ClusterPolicyViolation", "PolicyViolation", "GenerateRequest":
 		return true

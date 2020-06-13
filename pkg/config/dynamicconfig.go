@@ -1,11 +1,13 @@
 package config
 
 import (
+	"github.com/jimlawless/whereami"
 	"os"
 	"reflect"
 	"regexp"
 	"strings"
 	"sync"
+	"fmt"
 
 	"github.com/go-logr/logr"
 	"github.com/minio/minio/pkg/wildcard"
@@ -35,6 +37,7 @@ type ConfigData struct {
 
 // ToFilter checks if the given resource is set to be filtered in the configuration
 func (cd *ConfigData) ToFilter(kind, namespace, name string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	cd.mux.RLock()
 	defer cd.mux.RUnlock()
 	for _, f := range cd.filters {
@@ -52,6 +55,7 @@ type Interface interface {
 
 // NewConfigData ...
 func NewConfigData(rclient kubernetes.Interface, cmInformer informers.ConfigMapInformer, filterK8Resources string, log logr.Logger) *ConfigData {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// environment var is read at start only
 	if cmNameEnv == "" {
 		log.Info("ConfigMap name not defined in env:INIT_CONFIG: loading no default configuration")
@@ -79,6 +83,7 @@ func NewConfigData(rclient kubernetes.Interface, cmInformer informers.ConfigMapI
 
 //Run checks syncing
 func (cd *ConfigData) Run(stopCh <-chan struct{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := cd.log
 	// wait for cache to populate first time
 	if !cache.WaitForCacheSync(stopCh, cd.cmSycned) {
@@ -87,6 +92,7 @@ func (cd *ConfigData) Run(stopCh <-chan struct{}) {
 }
 
 func (cd *ConfigData) addCM(obj interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	cm := obj.(*v1.ConfigMap)
 	if cm.Name != cd.cmName {
 		return
@@ -96,6 +102,7 @@ func (cd *ConfigData) addCM(obj interface{}) {
 }
 
 func (cd *ConfigData) updateCM(old, cur interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	cm := cur.(*v1.ConfigMap)
 	if cm.Name != cd.cmName {
 		return
@@ -105,6 +112,7 @@ func (cd *ConfigData) updateCM(old, cur interface{}) {
 }
 
 func (cd *ConfigData) deleteCM(obj interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := cd.log
 	cm, ok := obj.(*v1.ConfigMap)
 	if !ok {
@@ -128,6 +136,7 @@ func (cd *ConfigData) deleteCM(obj interface{}) {
 }
 
 func (cd *ConfigData) load(cm v1.ConfigMap) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := cd.log.WithValues("name", cm.Name, "namespace", cm.Namespace)
 	if cm.Data == nil {
 		logger.V(4).Info("configuration: No data defined in ConfigMap")
@@ -161,6 +170,7 @@ func (cd *ConfigData) load(cm v1.ConfigMap) {
 //TODO: this has been added to backward support command line arguments
 // will be removed in future and the configuration will be set only via configmaps
 func (cd *ConfigData) initFilters(filters string) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := cd.log
 	// parse and load the configuration
 	cd.mux.Lock()
@@ -173,6 +183,7 @@ func (cd *ConfigData) initFilters(filters string) {
 }
 
 func (cd *ConfigData) unload(cm v1.ConfigMap) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := cd.log
 	logger.Info("ConfigMap deleted, removing configuration filters", "name", cm.Name, "namespace", cm.Namespace)
 	cd.mux.Lock()
@@ -189,6 +200,7 @@ type k8Resource struct {
 //ParseKinds parses the kinds if a single string contains comma separated kinds
 // {"1,2,3","4","5"} => {"1","2","3","4","5"}
 func parseKinds(list string) []k8Resource {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	resources := []k8Resource{}
 	var resource k8Resource
 	re := regexp.MustCompile(`\[([^\[\]]*)\]`)

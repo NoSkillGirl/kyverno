@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	kyvernolister "github.com/nirmata/kyverno/pkg/client/listers/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/engine/response"
@@ -12,6 +13,7 @@ import (
 )
 
 func (pc *PolicyController) cleanUp(ers []response.EngineResponse) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, er := range ers {
 		if !er.IsSuccesful() {
 			continue
@@ -25,6 +27,7 @@ func (pc *PolicyController) cleanUp(ers []response.EngineResponse) {
 }
 
 func (pc *PolicyController) cleanUpPolicyViolation(pResponse response.PolicyResponse) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log
 	// - check if there is violation on resource (label:Selector)
 	if pResponse.Resource.Namespace == "" {
@@ -64,6 +67,7 @@ func (pc *PolicyController) cleanUpPolicyViolation(pResponse response.PolicyResp
 
 // Wont do the claiming of objects, just lookup based on selectors
 func getClusterPV(pvLister kyvernolister.ClusterPolicyViolationLister, policyName, rkind, rname string, log logr.Logger) (kyverno.ClusterPolicyViolation, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var err error
 	// Check Violation on resource
 	pvs, err := pvLister.List(labels.Everything())
@@ -84,6 +88,7 @@ func getClusterPV(pvLister kyvernolister.ClusterPolicyViolationLister, policyNam
 }
 
 func getNamespacedPV(nspvLister kyvernolister.PolicyViolationLister, policyName, rkind, rnamespace, rname string, log logr.Logger) (kyverno.PolicyViolation, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	nspvs, err := nspvLister.PolicyViolations(rnamespace).List(labels.Everything())
 	if err != nil {
 		log.Error(err, "failed to list namespaced policy violation")

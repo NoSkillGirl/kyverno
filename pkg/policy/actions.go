@@ -3,6 +3,7 @@ package policy
 import (
 	"fmt"
 
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	dclient "github.com/nirmata/kyverno/pkg/dclient"
 	"github.com/nirmata/kyverno/pkg/policy/generate"
@@ -21,6 +22,7 @@ type Validation interface {
 // - Validation
 // - Generate
 func validateActions(idx int, rule kyverno.Rule, client *dclient.Client, mock bool) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var checker Validation
 
 	// Mutate

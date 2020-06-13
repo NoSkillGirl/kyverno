@@ -1,11 +1,15 @@
 package mutate
 
 import (
+	"fmt"
+
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/engine/anchor"
 )
 
 // removeAnchor remove special characters around anchored key
 func removeAnchor(key string) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if anchor.IsConditionAnchor(key) {
 		return key[1 : len(key)-1]
 	}
@@ -18,6 +22,7 @@ func removeAnchor(key string) string {
 }
 
 func getRawKeyIfWrappedWithAttributes(str string) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if len(str) < 2 {
 		return str
 	}
@@ -33,6 +38,7 @@ func getRawKeyIfWrappedWithAttributes(str string) string {
 
 // getAnchorAndElementsFromMap gets the condition anchor map and resource map without anchor
 func getAnchorAndElementsFromMap(anchorsMap map[string]interface{}) (map[string]interface{}, map[string]interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	anchors := make(map[string]interface{})
 	elementsWithoutanchor := make(map[string]interface{})
 	for key, value := range anchorsMap {

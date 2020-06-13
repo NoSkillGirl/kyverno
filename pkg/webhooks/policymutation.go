@@ -3,6 +3,7 @@ package webhooks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/jimlawless/whereami"
 	"reflect"
 	"strconv"
 	"strings"
@@ -17,6 +18,7 @@ import (
 )
 
 func (ws *WebhookServer) policyMutation(request *v1beta1.AdmissionRequest) *v1beta1.AdmissionResponse {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := ws.log.WithValues("action", "policymutation", "uid", request.UID, "kind", request.Kind, "namespace", request.Namespace, "name", request.Name, "operation", request.Operation)
 	var policy *kyverno.ClusterPolicy
 	raw := request.Object.Raw
@@ -50,6 +52,7 @@ func (ws *WebhookServer) policyMutation(request *v1beta1.AdmissionRequest) *v1be
 }
 
 func generateJSONPatchesForDefaults(policy *kyverno.ClusterPolicy, log logr.Logger) ([]byte, []string) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var patches [][]byte
 	var updateMsgs []string
 
@@ -81,6 +84,7 @@ func generateJSONPatchesForDefaults(policy *kyverno.ClusterPolicy, log logr.Logg
 }
 
 func defaultBackgroundFlag(policy *kyverno.ClusterPolicy, log logr.Logger) ([]byte, string) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// set 'Background' flag to 'true' if not specified
 	defaultVal := true
 	if policy.Spec.Background == nil {
@@ -109,6 +113,7 @@ func defaultBackgroundFlag(policy *kyverno.ClusterPolicy, log logr.Logger) ([]by
 }
 
 func defaultvalidationFailureAction(policy *kyverno.ClusterPolicy, log logr.Logger) ([]byte, string) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// set ValidationFailureAction to "audit" if not specified
 	if policy.Spec.ValidationFailureAction == "" {
 		log.V(4).Info("setting defautl value", "spec.validationFailureAction", Audit)
@@ -146,6 +151,7 @@ func defaultvalidationFailureAction(policy *kyverno.ClusterPolicy, log logr.Logg
 
 // generatePodControllerRule returns two patches: rulePatches and annotation patch(if necessary)
 func generatePodControllerRule(policy kyverno.ClusterPolicy, log logr.Logger) (patches [][]byte, errs []error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	ann := policy.GetAnnotations()
 	controllers, ok := ann[engine.PodControllersAnnotation]
 
@@ -174,6 +180,7 @@ func generatePodControllerRule(policy kyverno.ClusterPolicy, log logr.Logger) (p
 }
 
 func createRuleMap(rules []kyverno.Rule) map[string]kyvernoRule {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var ruleMap = make(map[string]kyvernoRule)
 	for _, rule := range rules {
 		var jsonFriendlyStruct kyvernoRule
@@ -203,6 +210,7 @@ func createRuleMap(rules []kyverno.Rule) map[string]kyvernoRule {
 
 // generateRulePatches generates rule for podControllers based on scenario A and C
 func generateRulePatches(policy kyverno.ClusterPolicy, controllers string, log logr.Logger) (rulePatches [][]byte, errs []error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var genRule kyvernoRule
 
 	insertIdx := len(policy.Spec.Rules)
@@ -279,6 +287,7 @@ type kyvernoRule struct {
 }
 
 func generateRuleForControllers(rule kyverno.Rule, controllers string, log logr.Logger) kyvernoRule {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if strings.HasPrefix(rule.Name, "autogen-") {
 		return kyvernoRule{}
 	}
@@ -387,6 +396,7 @@ func generateRuleForControllers(rule kyverno.Rule, controllers string, log logr.
 // defaultPodControllerAnnotation generates annotation "pod-policies.kyverno.io/autogen-controllers=all"
 // ann passes in the annotation of the policy
 func defaultPodControllerAnnotation(ann map[string]string) ([]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if ann == nil {
 		ann = make(map[string]string)
 		ann[engine.PodControllersAnnotation] = "DaemonSet,Deployment,Job,StatefulSet"

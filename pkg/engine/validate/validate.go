@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	"github.com/nirmata/kyverno/pkg/engine/anchor"
 	"github.com/nirmata/kyverno/pkg/engine/operator"
 )
@@ -16,6 +17,7 @@ import (
 // ValidateResourceWithPattern is a start of element-by-element validation process
 // It assumes that validation is started from root, so "/" is passed
 func ValidateResourceWithPattern(log logr.Logger, resource, pattern interface{}) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	path, err := validateResourceElement(log, resource, pattern, pattern, "/")
 	if err != nil {
 		return path, err
@@ -28,6 +30,7 @@ func ValidateResourceWithPattern(log logr.Logger, resource, pattern interface{})
 // and calls corresponding handler
 // Pattern tree and resource tree can have different structure. In this case validation fails
 func validateResourceElement(log logr.Logger, resourceElement, patternElement, originPattern interface{}, path string) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var err error
 	switch typedPatternElement := patternElement.(type) {
 	// map
@@ -73,6 +76,7 @@ func validateResourceElement(log logr.Logger, resourceElement, patternElement, o
 // If validateResourceElement detects map element inside resource and pattern trees, it goes to validateMap
 // For each element of the map we must detect the type again, so we pass these elements to validateResourceElement
 func validateMap(log logr.Logger, resourceMap, patternMap map[string]interface{}, origPattern interface{}, path string) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// check if there is anchor in pattern
 	// Phase 1 : Evaluate all the anchors
 	// Phase 2 : Evaluate non-anchors
@@ -110,6 +114,7 @@ func validateMap(log logr.Logger, resourceMap, patternMap map[string]interface{}
 }
 
 func validateArray(log logr.Logger, resourceArray, patternArray []interface{}, originPattern interface{}, path string) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	if 0 == len(patternArray) {
 		return path, fmt.Errorf("Pattern Array empty")
@@ -138,6 +143,7 @@ func validateArray(log logr.Logger, resourceArray, patternArray []interface{}, o
 }
 
 func actualizePattern(log logr.Logger, origPattern interface{}, referencePattern, absolutePath string) (interface{}, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var foundValue interface{}
 
 	referencePattern = strings.Trim(referencePattern, "$()")
@@ -173,6 +179,7 @@ func actualizePattern(log logr.Logger, origPattern interface{}, referencePattern
 
 //Parse value to string
 func valFromReferenceToString(value interface{}, operator string) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	switch typed := value.(type) {
 	case string:
@@ -188,6 +195,7 @@ func valFromReferenceToString(value interface{}, operator string) (string, error
 
 // returns absolute path
 func formAbsolutePath(referencePath, absolutePath string) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if path.IsAbs(referencePath) {
 		return referencePath
 	}
@@ -197,6 +205,7 @@ func formAbsolutePath(referencePath, absolutePath string) string {
 
 //Prepares original pattern, path to value, and call traverse function
 func getValueFromReference(log logr.Logger, origPattern interface{}, reference string) (interface{}, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	originalPatternMap := origPattern.(map[string]interface{})
 	reference = reference[1:]
 	statements := strings.Split(reference, "/")
@@ -205,6 +214,7 @@ func getValueFromReference(log logr.Logger, origPattern interface{}, reference s
 }
 
 func getValueFromPattern(log logr.Logger, patternMap map[string]interface{}, keys []string, currentKeyIndex int) (interface{}, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	for key, pattern := range patternMap {
 		rawKey := getRawKeyIfWrappedWithAttributes(key)
@@ -254,6 +264,7 @@ func getValueFromPattern(log logr.Logger, patternMap map[string]interface{}, key
 // validateArrayOfMaps gets anchors from pattern array map element, applies anchors logic
 // and then validates each map due to the pattern
 func validateArrayOfMaps(log logr.Logger, resourceMapArray []interface{}, patternMap map[string]interface{}, originPattern interface{}, path string) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for i, resourceElement := range resourceMapArray {
 		// check the types of resource element
 		// expect it to be map, but can be anything ?:(
@@ -267,6 +278,7 @@ func validateArrayOfMaps(log logr.Logger, resourceMapArray []interface{}, patter
 }
 
 func isStringIsReference(str string) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if len(str) < len(operator.ReferenceSign) {
 		return false
 	}

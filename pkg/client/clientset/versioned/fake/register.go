@@ -19,6 +19,8 @@ limitations under the License.
 package fake
 
 import (
+	"fmt"
+	"github.com/jimlawless/whereami"
 	kyvernov1 "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -52,6 +54,7 @@ var localSchemeBuilder = runtime.SchemeBuilder{
 var AddToScheme = localSchemeBuilder.AddToScheme
 
 func init() {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	v1.AddToGroupVersion(scheme, schema.GroupVersion{Version: "v1"})
 	utilruntime.Must(AddToScheme(scheme))
 }

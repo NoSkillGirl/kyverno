@@ -9,6 +9,7 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/engine"
 	"github.com/nirmata/kyverno/pkg/engine/context"
@@ -20,6 +21,7 @@ import (
 // applyPolicy applies policy on a resource
 //TODO: generation rules
 func applyPolicy(policy kyverno.ClusterPolicy, resource unstructured.Unstructured, logger logr.Logger) (responses []response.EngineResponse) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	startTime := time.Now()
 	defer func() {
 		name := resource.GetKind() + "/" + resource.GetName()
@@ -54,6 +56,7 @@ func applyPolicy(policy kyverno.ClusterPolicy, resource unstructured.Unstructure
 	return engineResponses
 }
 func mutation(policy kyverno.ClusterPolicy, resource unstructured.Unstructured, ctx context.EvalInterface, log logr.Logger) (response.EngineResponse, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	engineResponse := engine.Mutate(engine.PolicyContext{Policy: policy, NewResource: resource, Context: ctx})
 	if !engineResponse.IsSuccesful() {
@@ -71,6 +74,7 @@ func mutation(policy kyverno.ClusterPolicy, resource unstructured.Unstructured, 
 
 // getFailedOverallRuleInfo gets detailed info for over-all mutation failure
 func getFailedOverallRuleInfo(resource unstructured.Unstructured, engineResponse response.EngineResponse, log logr.Logger) (response.EngineResponse, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	rawResource, err := resource.MarshalJSON()
 	if err != nil {
 		log.Error(err, "faield to marshall resource")
@@ -117,6 +121,7 @@ type jsonPatch struct {
 }
 
 func extractPatchPath(patches [][]byte, log logr.Logger) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var resultPath []string
 	// extract the patch path and value
 	for _, patch := range patches {
@@ -132,6 +137,7 @@ func extractPatchPath(patches [][]byte, log logr.Logger) string {
 }
 
 func mergeRuleRespose(mutation, validation response.EngineResponse) response.EngineResponse {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	mutation.PolicyResponse.Rules = append(mutation.PolicyResponse.Rules, validation.PolicyResponse.Rules...)
 	return mutation
 }

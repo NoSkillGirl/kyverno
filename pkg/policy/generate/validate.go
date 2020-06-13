@@ -2,6 +2,7 @@ package generate
 
 import (
 	"fmt"
+	"github.com/jimlawless/whereami"
 	"reflect"
 
 	"github.com/go-logr/logr"
@@ -24,6 +25,7 @@ type Generate struct {
 
 //NewGenerateFactory returns a new instance of Generate validation checker
 func NewGenerateFactory(client *dclient.Client, rule kyverno.Generation, log logr.Logger) *Generate {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	g := Generate{
 		rule:      rule,
 		authCheck: NewAuth(client, log),
@@ -35,6 +37,7 @@ func NewGenerateFactory(client *dclient.Client, rule kyverno.Generation, log log
 
 //Validate validates the 'generate' rule
 func (g *Generate) Validate() (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	rule := g.rule
 	if rule.Data == nil && rule.Clone == (kyverno.CloneFrom{}) {
 		return "", fmt.Errorf("clone or data are required")
@@ -77,6 +80,7 @@ func (g *Generate) Validate() (string, error) {
 }
 
 func (g *Generate) validateClone(c kyverno.CloneFrom, kind string) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if c.Name == "" {
 		return "name", fmt.Errorf("name cannot be empty")
 	}
@@ -102,6 +106,7 @@ func (g *Generate) validateClone(c kyverno.CloneFrom, kind string) (string, erro
 
 //canIGenerate returns a error if kyverno cannot perform oprations
 func (g *Generate) canIGenerate(kind, namespace string) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// Skip if there is variable defined
 	authCheck := g.authCheck
 	if !variables.IsVariable(kind) && !variables.IsVariable(namespace) {

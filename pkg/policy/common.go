@@ -3,6 +3,7 @@ package policy
 import (
 	"fmt"
 
+	"github.com/jimlawless/whereami"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
@@ -10,6 +11,7 @@ import (
 )
 
 func buildPolicyLabel(policyName string) (labels.Selector, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	policyLabelmap := map[string]string{"policy": policyName}
 	//NOt using a field selector, as the match function will have to cast the runtime.object
 	// to get the field, while it can get labels directly, saves the cast effort
@@ -25,6 +27,7 @@ func buildPolicyLabel(policyName string) (labels.Selector, error) {
 }
 
 func transformResource(resource unstructured.Unstructured) []byte {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	data, err := resource.MarshalJSON()
 	if err != nil {
 		log.Log.Error(err, "failed to marshal resource")

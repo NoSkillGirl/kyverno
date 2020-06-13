@@ -1,6 +1,9 @@
 package webhooks
 
 import (
+	"fmt"
+
+	"github.com/jimlawless/whereami"
 	policyvalidate "github.com/nirmata/kyverno/pkg/policy"
 
 	v1beta1 "k8s.io/api/admission/v1beta1"
@@ -10,6 +13,7 @@ import (
 
 //HandlePolicyValidation performs the validation check on policy resource
 func (ws *WebhookServer) policyValidation(request *v1beta1.AdmissionRequest) *v1beta1.AdmissionResponse {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	//TODO: can this happen? wont this be picked by OpenAPI spec schema ?
 	if err := policyvalidate.Validate(request.Object.Raw, ws.client, false, ws.openAPIController); err != nil {
 		return &v1beta1.AdmissionResponse{

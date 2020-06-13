@@ -2,10 +2,12 @@ package engine
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/engine/mutate"
 	"github.com/nirmata/kyverno/pkg/engine/response"
@@ -26,6 +28,7 @@ const (
 
 // Mutate performs mutation. Overlay first and then mutation patches
 func Mutate(policyContext PolicyContext) (resp response.EngineResponse) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	startTime := time.Now()
 	policy := policyContext.Policy
 	resource := policyContext.NewResource
@@ -121,12 +124,14 @@ func Mutate(policyContext PolicyContext) (resp response.EngineResponse) {
 }
 
 func autoGenPolicy(policy *kyverno.ClusterPolicy) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	annotations := policy.GetObjectMeta().GetAnnotations()
 	_, ok := annotations[PodControllersAnnotation]
 	return ok
 }
 
 func patchedResourceHasPodControllerAnnotation(resource unstructured.Unstructured) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var podController struct {
 		Spec struct {
 			Template struct {
@@ -147,10 +152,12 @@ func patchedResourceHasPodControllerAnnotation(resource unstructured.Unstructure
 	return ok
 }
 func incrementAppliedRuleCount(resp *response.EngineResponse) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	resp.PolicyResponse.RulesAppliedCount++
 }
 
 func startMutateResultResponse(resp *response.EngineResponse, policy kyverno.ClusterPolicy, resource unstructured.Unstructured) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// set policy information
 	resp.PolicyResponse.Policy = policy.Name
 	// resource details
@@ -162,6 +169,7 @@ func startMutateResultResponse(resp *response.EngineResponse, policy kyverno.Clu
 }
 
 func endMutateResultResponse(logger logr.Logger, resp *response.EngineResponse, startTime time.Time) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	resp.PolicyResponse.ProcessingTime = time.Since(startTime)
 	logger.V(4).Info("finished processing policy", "processingTime", resp.PolicyResponse.ProcessingTime, "mutationRulesApplied", resp.PolicyResponse.RulesAppliedCount)
 }

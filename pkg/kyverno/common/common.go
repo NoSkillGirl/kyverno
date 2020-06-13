@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/jimlawless/whereami"
 	v1 "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/kyverno/sanitizedError"
 	"github.com/nirmata/kyverno/pkg/openapi"
@@ -19,6 +20,7 @@ import (
 
 // GetPolicies - Extracting the policies from multiple YAML
 func GetPolicies(paths []string) (policies []*v1.ClusterPolicy, error error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	log := log.Log
 	for _, path := range paths {
 		path = filepath.Clean(path)
@@ -75,6 +77,7 @@ func GetPolicies(paths []string) (policies []*v1.ClusterPolicy, error error) {
 
 // GetPolicy - Extracts policies from a YAML
 func GetPolicy(path string) (clusterPolicies []*v1.ClusterPolicy, errors []error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
 		errors = append(errors, fmt.Errorf(fmt.Sprintf("failed to load file: %v. error: %v", path, err)))
@@ -113,6 +116,7 @@ func GetPolicy(path string) (clusterPolicies []*v1.ClusterPolicy, errors []error
 // SplitYAMLDocuments reads the YAML bytes per-document, unmarshals the TypeMeta information from each document
 // and returns a map between the GroupVersionKind of the document and the document bytes
 func SplitYAMLDocuments(yamlBytes []byte) (policies [][]byte, error error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	buf := bytes.NewBuffer(yamlBytes)
 	reader := yaml.NewYAMLReader(bufio.NewReader(buf))
 	for {
@@ -131,6 +135,7 @@ func SplitYAMLDocuments(yamlBytes []byte) (policies [][]byte, error error) {
 
 //GetPoliciesValidation - validating policies
 func GetPoliciesValidation(policyPaths []string) ([]*v1.ClusterPolicy, *openapi.Controller, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	policies, err := GetPolicies(policyPaths)
 	if err != nil {
 		if !sanitizedError.IsErrorSanitized(err) {

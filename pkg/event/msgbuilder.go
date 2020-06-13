@@ -3,6 +3,8 @@ package event
 import (
 	"fmt"
 	"regexp"
+
+	"github.com/jimlawless/whereami"
 )
 
 //MsgKey is an identified to determine the preset message formats
@@ -22,6 +24,7 @@ const (
 )
 
 func (k MsgKey) String() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return [...]string{
 		"Policy violation on resource '%s'. The rule(s) '%s' not satisfied",
 		"Failed to process rule '%s' of policy '%s'.",
@@ -42,6 +45,7 @@ var re = regexp.MustCompile(argRegex)
 //GetEventMsg return the application message based on the message id and the arguments,
 // if the number of arguments passed to the message are incorrect generate an error
 func getEventMsg(key MsgKey, args ...interface{}) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// Verify the number of arguments
 	argsCount := len(re.FindAllString(key.String(), -1))
 	if argsCount != len(args) {

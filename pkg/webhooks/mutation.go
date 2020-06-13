@@ -1,10 +1,12 @@
 package webhooks
 
 import (
+	"fmt"
 	"reflect"
 	"sort"
 	"time"
 
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	v1 "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/engine"
@@ -110,10 +112,12 @@ type mutateStats struct {
 }
 
 func (ms mutateStats) PolicyName() string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return ms.resp.PolicyResponse.Policy
 }
 
 func (ms mutateStats) UpdateStatus(status kyverno.PolicyStatus) kyverno.PolicyStatus {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if reflect.DeepEqual(response.EngineResponse{}, ms.resp) {
 		return status
 	}

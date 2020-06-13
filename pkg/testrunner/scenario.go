@@ -3,11 +3,14 @@ package testrunner
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	ospath "path"
 	"reflect"
 	"testing"
+
+	"github.com/jimlawless/whereami"
 
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	client "github.com/nirmata/kyverno/pkg/dclient"
@@ -66,12 +69,14 @@ type sGeneration struct {
 
 //getRelativePath expects a path relative to project and builds the complete path
 func getRelativePath(path string) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	gp := os.Getenv("GOPATH")
 	ap := ospath.Join(gp, projectPath)
 	return ospath.Join(ap, path)
 }
 
 func loadScenario(t *testing.T, path string) (*scenarioT, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	fileBytes, err := loadFile(t, path)
 	if err != nil {
 		return nil, err
@@ -98,6 +103,7 @@ func loadScenario(t *testing.T, path string) (*scenarioT, error) {
 
 // loadFile loads file in byte buffer
 func loadFile(t *testing.T, path string) ([]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	path = getRelativePath(path)
 	t.Logf("reading file %s", path)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -107,6 +113,7 @@ func loadFile(t *testing.T, path string) ([]byte, error) {
 }
 
 func runScenario(t *testing.T, s *scenarioT) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, tc := range s.testCases {
 		runTestCase(t, tc)
 	}
@@ -114,6 +121,7 @@ func runScenario(t *testing.T, s *scenarioT) bool {
 }
 
 func runTestCase(t *testing.T, tc scaseT) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	policy := loadPolicy(t, tc.Input.Policy)
 	if policy == nil {
 		t.Error("Policy not loaded")
@@ -169,10 +177,12 @@ func runTestCase(t *testing.T, tc scaseT) bool {
 }
 
 func createNamespace(client *client.Client, ns *unstructured.Unstructured) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	_, err := client.CreateResource("Namespace", "", ns, false)
 	return err
 }
 func validateGeneratedResources(t *testing.T, client *client.Client, policy kyverno.ClusterPolicy, namespace string, expected []kyverno.ResourceSpec) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	t.Log("--validate if resources are generated---")
 	// list of expected generated resources
 	for _, resource := range expected {
@@ -183,6 +193,7 @@ func validateGeneratedResources(t *testing.T, client *client.Client, policy kyve
 }
 
 func validateResource(t *testing.T, responseResource unstructured.Unstructured, expectedResourceFile string) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	resourcePrint := func(obj unstructured.Unstructured, msg string) {
 		t.Logf("-----%s----", msg)
 		if data, err := obj.MarshalJSON(); err == nil {
@@ -211,6 +222,7 @@ func validateResource(t *testing.T, responseResource unstructured.Unstructured, 
 }
 
 func validateResponse(t *testing.T, er response.PolicyResponse, expected response.PolicyResponse) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if reflect.DeepEqual(expected, (response.PolicyResponse{})) {
 		t.Log("no response expected")
 		return
@@ -244,6 +256,7 @@ func validateResponse(t *testing.T, er response.PolicyResponse, expected respons
 }
 
 func compareResourceSpec(t *testing.T, resource response.ResourceSpec, expectedResource response.ResourceSpec) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// kind
 	if resource.Kind != expectedResource.Kind {
 		t.Errorf("kind: expected %s, received %s", expectedResource.Kind, resource.Kind)
@@ -264,6 +277,7 @@ func compareResourceSpec(t *testing.T, resource response.ResourceSpec, expectedR
 }
 
 func compareRules(t *testing.T, rule response.RuleResponse, expectedRule response.RuleResponse) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// name
 	if rule.Name != expectedRule.Name {
 		t.Errorf("rule name: expected %s, received %+v", expectedRule.Name, rule.Name)
@@ -290,6 +304,7 @@ func compareRules(t *testing.T, rule response.RuleResponse, expectedRule respons
 }
 
 func loadPolicyResource(t *testing.T, file string) *unstructured.Unstructured {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// expect only one resource to be specified in the YAML
 	resources := loadResource(t, file)
 	if resources == nil {
@@ -304,6 +319,7 @@ func loadPolicyResource(t *testing.T, file string) *unstructured.Unstructured {
 }
 
 func getClient(t *testing.T, files []string) *client.Client {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var objects []runtime.Object
 	if files != nil {
 
@@ -327,6 +343,7 @@ func getClient(t *testing.T, files []string) *client.Client {
 }
 
 func getGVRForResources(objects []runtime.Object) []schema.GroupVersionResource {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var gvrs []schema.GroupVersionResource
 	for _, obj := range objects {
 		gvk := obj.GetObjectKind().GroupVersionKind()
@@ -339,6 +356,7 @@ func getGVRForResources(objects []runtime.Object) []schema.GroupVersionResource 
 }
 
 func loadResource(t *testing.T, path string) []*unstructured.Unstructured {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var unstrResources []*unstructured.Unstructured
 	t.Logf("loading resource from %s", path)
 	data, err := loadFile(t, path)
@@ -367,6 +385,7 @@ func loadResource(t *testing.T, path string) []*unstructured.Unstructured {
 }
 
 func loadObjects(t *testing.T, path string) []runtime.Object {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var resources []runtime.Object
 	t.Logf("loading objects from %s", path)
 	data, err := loadFile(t, path)
@@ -391,6 +410,7 @@ func loadObjects(t *testing.T, path string) []runtime.Object {
 }
 
 func loadPolicy(t *testing.T, path string) *kyverno.ClusterPolicy {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	t.Logf("loading policy from %s", path)
 	data, err := loadFile(t, path)
 	if err != nil {
@@ -425,6 +445,7 @@ func loadPolicy(t *testing.T, path string) *kyverno.ClusterPolicy {
 }
 
 func testScenario(t *testing.T, path string) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	// flag.Set("logtostderr", "true")
 	// flag.Set("v", "8")

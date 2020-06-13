@@ -1,6 +1,9 @@
 package cleanup
 
 import (
+	"fmt"
+
+	"github.com/jimlawless/whereami"
 	kyvernoclient "github.com/nirmata/kyverno/pkg/client/clientset/versioned"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -17,5 +20,6 @@ type Control struct {
 
 //Delete deletes the specified resource
 func (c Control) Delete(gr string) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return c.client.KyvernoV1().GenerateRequests("kyverno").Delete(gr, &metav1.DeleteOptions{})
 }

@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/go-logr/logr"
+	"github.com/jimlawless/whereami"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
@@ -17,6 +18,7 @@ type resourceElementHandler = func(log logr.Logger, resourceElement, patternElem
 
 //CreateElementHandler factory to process elements
 func CreateElementHandler(element string, pattern interface{}, path string) ValidationHandler {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	switch {
 	case IsConditionAnchor(element):
 		return NewConditionAnchorHandler(element, pattern, path)
@@ -33,6 +35,7 @@ func CreateElementHandler(element string, pattern interface{}, path string) Vali
 
 //NewNegationHandler returns instance of negation handler
 func NewNegationHandler(anchor string, pattern interface{}, path string) ValidationHandler {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return NegationHandler{
 		anchor:  anchor,
 		pattern: pattern,
@@ -49,6 +52,7 @@ type NegationHandler struct {
 
 //Handle process negation handler
 func (nh NegationHandler) Handle(handler resourceElementHandler, resourceMap map[string]interface{}, originPattern interface{}) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	anchorKey := removeAnchor(nh.anchor)
 	currentPath := nh.path + anchorKey + "/"
 	// if anchor is present in the resource then fail
@@ -62,6 +66,7 @@ func (nh NegationHandler) Handle(handler resourceElementHandler, resourceMap map
 
 //NewEqualityHandler returens instance of equality handler
 func NewEqualityHandler(anchor string, pattern interface{}, path string) ValidationHandler {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return EqualityHandler{
 		anchor:  anchor,
 		pattern: pattern,
@@ -78,6 +83,7 @@ type EqualityHandler struct {
 
 //Handle processed condition anchor
 func (eh EqualityHandler) Handle(handler resourceElementHandler, resourceMap map[string]interface{}, originPattern interface{}) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	anchorKey := removeAnchor(eh.anchor)
 	currentPath := eh.path + anchorKey + "/"
 	// check if anchor is present in resource
@@ -94,6 +100,7 @@ func (eh EqualityHandler) Handle(handler resourceElementHandler, resourceMap map
 
 //NewDefaultHandler returns handler for non anchor elements
 func NewDefaultHandler(element string, pattern interface{}, path string) ValidationHandler {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return DefaultHandler{
 		element: element,
 		pattern: pattern,
@@ -110,6 +117,7 @@ type DefaultHandler struct {
 
 //Handle process non anchor element
 func (dh DefaultHandler) Handle(handler resourceElementHandler, resourceMap map[string]interface{}, originPattern interface{}) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	currentPath := dh.path + dh.element + "/"
 	if dh.pattern == "*" && resourceMap[dh.element] != nil {
 		return "", nil
@@ -126,6 +134,7 @@ func (dh DefaultHandler) Handle(handler resourceElementHandler, resourceMap map[
 
 //NewConditionAnchorHandler returns an instance of condition acnhor handler
 func NewConditionAnchorHandler(anchor string, pattern interface{}, path string) ValidationHandler {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return ConditionAnchorHandler{
 		anchor:  anchor,
 		pattern: pattern,
@@ -142,6 +151,7 @@ type ConditionAnchorHandler struct {
 
 //Handle processed condition anchor
 func (ch ConditionAnchorHandler) Handle(handler resourceElementHandler, resourceMap map[string]interface{}, originPattern interface{}) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	anchorKey := removeAnchor(ch.anchor)
 	currentPath := ch.path + anchorKey + "/"
 	// check if anchor is present in resource
@@ -159,6 +169,7 @@ func (ch ConditionAnchorHandler) Handle(handler resourceElementHandler, resource
 
 //NewExistenceHandler returns existence handler
 func NewExistenceHandler(anchor string, pattern interface{}, path string) ValidationHandler {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return ExistenceHandler{
 		anchor:  anchor,
 		pattern: pattern,
@@ -175,6 +186,7 @@ type ExistenceHandler struct {
 
 //Handle processes the existence anchor handler
 func (eh ExistenceHandler) Handle(handler resourceElementHandler, resourceMap map[string]interface{}, originPattern interface{}) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// skip is used by existence anchor to not process further if condition is not satisfied
 	anchorKey := removeAnchor(eh.anchor)
 	currentPath := eh.path + anchorKey + "/"
@@ -202,6 +214,7 @@ func (eh ExistenceHandler) Handle(handler resourceElementHandler, resourceMap ma
 }
 
 func validateExistenceListResource(handler resourceElementHandler, resourceList []interface{}, patternMap map[string]interface{}, originPattern interface{}, path string) (string, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	// the idea is atleast on the elements in the array should satisfy the pattern
 	// if non satisfy then throw an error
 	for i, resourceElement := range resourceList {
@@ -218,6 +231,7 @@ func validateExistenceListResource(handler resourceElementHandler, resourceList 
 
 //GetAnchorsResourcesFromMap returns map of anchors
 func GetAnchorsResourcesFromMap(patternMap map[string]interface{}) (map[string]interface{}, map[string]interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	anchors := map[string]interface{}{}
 	resources := map[string]interface{}{}
 	for key, value := range patternMap {

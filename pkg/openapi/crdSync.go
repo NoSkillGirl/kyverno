@@ -14,6 +14,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/googleapis/gnostic/compiler"
+	"github.com/jimlawless/whereami"
 
 	openapi_v2 "github.com/googleapis/gnostic/OpenAPIv2"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -56,6 +57,7 @@ var crdDefinitionNew struct {
 }
 
 func NewCRDSync(client *client.Client, controller *Controller) *crdSync {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if controller == nil {
 		panic(fmt.Errorf("nil controller sent into crd sync"))
 	}
@@ -67,6 +69,7 @@ func NewCRDSync(client *client.Client, controller *Controller) *crdSync {
 }
 
 func (c *crdSync) Run(workers int, stopCh <-chan struct{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	newDoc, err := c.client.DiscoveryClient.OpenAPISchema()
 	if err != nil {
 		log.Log.Error(err, "cannot get OpenAPI schema")
@@ -86,6 +89,7 @@ func (c *crdSync) Run(workers int, stopCh <-chan struct{}) {
 }
 
 func (c *crdSync) sync() {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	crds, err := c.client.GetDynamicInterface().Resource(runtimeSchema.GroupVersionResource{
 		Group:    "apiextensions.k8s.io",
 		Version:  "v1beta1",
@@ -107,6 +111,7 @@ func (c *crdSync) sync() {
 }
 
 func (o *Controller) deleteCRDFromPreviousSync() {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for _, crd := range o.crdList {
 		delete(o.kindToDefinitionName, crd)
 		delete(o.definitions, crd)
@@ -116,6 +121,7 @@ func (o *Controller) deleteCRDFromPreviousSync() {
 }
 
 func (o *Controller) parseCRD(crd unstructured.Unstructured) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var err error
 
 	crdRaw, _ := json.Marshal(crd.Object)
@@ -168,6 +174,7 @@ func (o *Controller) parseCRD(crd unstructured.Unstructured) {
 
 // addingDefaultFieldsToSchema will add any default missing fields like apiVersion, metadata
 func addingDefaultFieldsToSchema(schemaRaw []byte) ([]byte, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var schema struct {
 		Properties map[string]interface{} `json:"properties"`
 	}

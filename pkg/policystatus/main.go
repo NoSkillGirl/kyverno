@@ -3,6 +3,7 @@ package policystatus
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/jimlawless/whereami"
 	kyvernolister "github.com/nirmata/kyverno/pkg/client/listers/kyverno/v1"
 	"sync"
 	"time"
@@ -39,6 +40,7 @@ type statusUpdater interface {
 type Listener chan statusUpdater
 
 func (l Listener) Send(s statusUpdater) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	l <- s
 }
 
@@ -60,6 +62,7 @@ type cache struct {
 }
 
 func NewSync(c *versioned.Clientset, lister kyvernolister.ClusterPolicyLister) *Sync {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	return &Sync{
 		cache: &cache{
 			dataMu:     sync.RWMutex{},
@@ -73,6 +76,7 @@ func NewSync(c *versioned.Clientset, lister kyvernolister.ClusterPolicyLister) *
 }
 
 func (s *Sync) Run(workers int, stopCh <-chan struct{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for i := 0; i < workers; i++ {
 		go s.updateStatusCache(stopCh)
 	}
@@ -84,6 +88,7 @@ func (s *Sync) Run(workers int, stopCh <-chan struct{}) {
 // updateStatusCache is a worker which updates the current status
 //using the statusUpdater interface
 func (s *Sync) updateStatusCache(stopCh <-chan struct{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	for {
 		select {
 		case statusUpdater := <-s.Listener:
@@ -118,6 +123,7 @@ func (s *Sync) updateStatusCache(stopCh <-chan struct{}) {
 // updatePolicyStatus updates the status in the policy resource definition
 //from the status cache, syncing them
 func (s *Sync) updatePolicyStatus() {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	s.cache.dataMu.Lock()
 	var nameToStatus = make(map[string]v1.PolicyStatus, len(s.cache.data))
 	for k, v := range s.cache.data {

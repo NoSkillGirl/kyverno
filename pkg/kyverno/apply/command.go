@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/jimlawless/whereami"
 	client "github.com/nirmata/kyverno/pkg/dclient"
 
 	"github.com/nirmata/kyverno/pkg/utils"
@@ -37,6 +38,7 @@ import (
 )
 
 func Command() *cobra.Command {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var cmd *cobra.Command
 	var resourcePaths []string
 	var cluster bool
@@ -118,6 +120,7 @@ func Command() *cobra.Command {
 }
 
 func getResources(policies []*v1.ClusterPolicy, resourcePaths []string, dClient *client.Client) ([]*unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var resources []*unstructured.Unstructured
 	var err error
 
@@ -157,6 +160,7 @@ func getResources(policies []*v1.ClusterPolicy, resourcePaths []string, dClient 
 }
 
 func getResourcesOfTypeFromCluster(resourceTypes []string, dClient *client.Client) ([]*unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var resources []*unstructured.Unstructured
 
 	for _, kind := range resourceTypes {
@@ -180,6 +184,7 @@ func getResourcesOfTypeFromCluster(resourceTypes []string, dClient *client.Clien
 }
 
 func getResource(path string) ([]*unstructured.Unstructured, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 
 	resources := make([]*unstructured.Unstructured, 0)
 	getResourceErrors := make([]error, 0)
@@ -243,6 +248,7 @@ func getResource(path string) ([]*unstructured.Unstructured, error) {
 }
 
 func applyPolicyOnResource(policy *v1.ClusterPolicy, resource *unstructured.Unstructured) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	responseError := false
 	fmt.Printf("\n\nApplying Policy %s on Resource %s/%s/%s\n", policy.Name, resource.GetNamespace(), resource.GetKind(), resource.GetName())
 
@@ -310,13 +316,14 @@ func applyPolicyOnResource(policy *v1.ClusterPolicy, resource *unstructured.Unst
 		}
 	}
 
-	if responseError == true{
+	if responseError == true {
 		os.Exit(1)
 	}
 	return nil
 }
 
 func policyHasVariables(policy v1.ClusterPolicy) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	policyRaw, _ := json.Marshal(policy)
 	regex := regexp.MustCompile(`\{\{([^{}]*)\}\}`)
 	return len(regex.FindAllStringSubmatch(string(policyRaw), -1)) > 0

@@ -1,11 +1,15 @@
 package policy
 
 import (
+	"fmt"
+
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"k8s.io/client-go/tools/cache"
 )
 
 func (pc *PolicyController) addClusterPolicyViolation(obj interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	pv := obj.(*kyverno.ClusterPolicyViolation)
 	logger := pc.log.WithValues("kind", pv.Kind, "namespace", pv.Namespace, "name", pv.Name)
 
@@ -35,6 +39,7 @@ func (pc *PolicyController) addClusterPolicyViolation(obj interface{}) {
 }
 
 func (pc *PolicyController) updateClusterPolicyViolation(old, cur interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	curPV := cur.(*kyverno.ClusterPolicyViolation)
 	oldPV := old.(*kyverno.ClusterPolicyViolation)
 	if curPV.ResourceVersion == oldPV.ResourceVersion {
@@ -66,6 +71,7 @@ func (pc *PolicyController) updateClusterPolicyViolation(old, cur interface{}) {
 // a DeletionFinalStateUnknown marker item.
 
 func (pc *PolicyController) deleteClusterPolicyViolation(obj interface{}) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log
 	pv, ok := obj.(*kyverno.ClusterPolicyViolation)
 	// When a delete is dropped, the relist will notice a PolicyViolation in the store not
@@ -103,6 +109,7 @@ func (pc *PolicyController) deleteClusterPolicyViolation(obj interface{}) {
 }
 
 func (pc *PolicyController) getPolicyForClusterPolicyViolation(pv *kyverno.ClusterPolicyViolation) []*kyverno.ClusterPolicy {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	logger := pc.log.WithValues("kind", pv.Kind, "namespace", pv.Namespace, "name", pv.Name)
 	policies, err := pc.pLister.GetPolicyForPolicyViolation(pv)
 	if err != nil || len(policies) == 0 {
@@ -120,6 +127,7 @@ func (pc *PolicyController) getPolicyForClusterPolicyViolation(pv *kyverno.Clust
 	return policies
 }
 func (pc *PolicyController) getClusterPolicyViolationForPolicy(policy string) ([]*kyverno.ClusterPolicyViolation, error) {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	policySelector, err := buildPolicyLabel(policy)
 	if err != nil {
 		return nil, err

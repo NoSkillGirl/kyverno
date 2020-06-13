@@ -3,6 +3,7 @@ package policy
 import (
 	"fmt"
 
+	"github.com/jimlawless/whereami"
 	kyverno "github.com/nirmata/kyverno/pkg/api/kyverno/v1"
 	"github.com/nirmata/kyverno/pkg/engine/context"
 	"github.com/nirmata/kyverno/pkg/engine/variables"
@@ -11,6 +12,7 @@ import (
 
 //ContainsVariablesOtherThanObject returns error if variable that does not start from request.object
 func ContainsVariablesOtherThanObject(policy kyverno.ClusterPolicy) error {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	var err error
 	for idx, rule := range policy.Spec.Rules {
 		if path := userInfoDefined(rule.MatchResources.UserInfo); path != "" {
@@ -67,6 +69,7 @@ func ContainsVariablesOtherThanObject(policy kyverno.ClusterPolicy) error {
 }
 
 func checkNotFoundErr(err error) bool {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if err != nil {
 		switch err.(type) {
 		case variables.NotFoundVariableErr:
@@ -80,6 +83,7 @@ func checkNotFoundErr(err error) bool {
 }
 
 func userInfoDefined(ui kyverno.UserInfo) string {
+	fmt.Printf("%s\n", whereami.WhereAmI())
 	if len(ui.Roles) > 0 {
 		return "roles"
 	}
