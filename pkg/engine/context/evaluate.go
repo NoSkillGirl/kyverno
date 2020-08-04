@@ -37,6 +37,7 @@ func (ctx *Context) Query(query string) (interface{}, error) {
 		ctx.log.Error(err, "failed to search query", "query", query)
 		return emptyResult, fmt.Errorf("failed to search query %s: %v", query, err)
 	}
+
 	return result, nil
 }
 

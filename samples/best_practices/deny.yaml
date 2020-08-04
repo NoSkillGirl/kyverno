@@ -1,0 +1,24 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: multi-tenancy
+  namespace: kyverno
+spec:
+  validationFailureAction: enforce
+  background: false
+  rules:
+    - name: block-delete-for-resources
+      match:
+        resources:
+          kinds:
+            - Pod
+            - Deployment
+          name: "*"
+      validate:
+        message: "{{request.operation}} is not allowed {{request.namespace}}"
+#        message: "{{temp1}} is awesome"
+        deny:
+          conditions:
+            - key: "{{request.operation}}"
+              operator: Equals
+              value: "DELETE"

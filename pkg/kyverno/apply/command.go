@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/nirmata/kyverno/pkg/engine/context"
 	"io/ioutil"
+	//"k8s.io/api/admission/v1beta1"
 	"os"
 	"path/filepath"
+	//"strconv"
 	"strings"
 	"time"
 
@@ -41,7 +44,8 @@ func Command() *cobra.Command {
 	var cmd *cobra.Command
 	var resourcePaths []string
 	var cluster bool
-	var mutatelogPath string
+	var mutatelogPath, variablesString string
+	variables := make(map[string]string)
 
 	kubernetesConfig := genericclioptions.NewConfigFlags(true)
 
@@ -54,10 +58,16 @@ func Command() *cobra.Command {
 				if err != nil {
 					if !sanitizedError.IsErrorSanitized(err) {
 						log.Log.Error(err, "failed to sanitize")
-						err = fmt.Errorf("Internal error")
+						err = fmt.Errorf("internal error")
 					}
 				}
 			}()
+
+			kvpairs := strings.Split(strings.Trim(variablesString," "), ",")
+			for _, kvpair := range kvpairs {
+				kvs := strings.Split(strings.Trim(kvpair, " "), "=")
+				variables[strings.Trim(kvs[0]," ")] = strings.Trim(kvs[1], " ")
+			}
 
 			if len(resourcePaths) == 0 && !cluster {
 				return sanitizedError.NewWithError("resource file or cluster required", err)
@@ -97,9 +107,9 @@ func Command() *cobra.Command {
 					os.Exit(1)
 				}
 
-				if common.PolicyHasVariables(*policy) {
-					return sanitizedError.NewWithError(fmt.Sprintf("invalid policy %s. 'apply' does not support policies with variables", policy.Name), err)
-				}
+				//if common.PolicyHasVariables(*policy) {
+				//	return sanitizedError.NewWithError(fmt.Sprintf("invalid policy %s. 'apply' does not support policies with variables", policy.Name), err)
+				//}
 			}
 
 			var dClient *client.Client
@@ -119,18 +129,18 @@ func Command() *cobra.Command {
 				return sanitizedError.NewWithError("failed to load resources", err)
 			}
 
-			newPolicies, err := mutatePolices(policies)
-			if err != nil {
-				return sanitizedError.NewWithError("failed to mutate policy", err)
-			}
+			//newPolicies, err := mutatePolices(policies)
+			//if err != nil {
+			//	return sanitizedError.NewWithError("failed to mutate policy", err)
+			//}
 
-			for i, policy := range newPolicies {
+			for i, policy := range policies {
 				for j, resource := range resources {
 					if !(j == 0 && i == 0) {
 						fmt.Printf("\n\n==========================================================================================\n")
 					}
 
-					err = applyPolicyOnResource(policy, resource, mutatelogPath, mutatelogPathIsDir)
+					err = applyPolicyOnResource(policy, resource, mutatelogPath, mutatelogPathIsDir, variables)
 					if err != nil {
 						return sanitizedError.NewWithError(fmt.Errorf("failed to apply policy %v on resource %v", policy.Name, resource.GetName()).Error(), err)
 					}
@@ -144,6 +154,7 @@ func Command() *cobra.Command {
 	cmd.Flags().StringArrayVarP(&resourcePaths, "resource", "r", []string{}, "Path to resource files")
 	cmd.Flags().BoolVarP(&cluster, "cluster", "c", false, "Checks if policies should be applied to cluster in the current context")
 	cmd.Flags().StringVarP(&mutatelogPath, "output", "o", "", "Prints the mutated resources in provided file/directory")
+	cmd.Flags().StringVarP(&variablesString, "set", "s", "", "Variables that are required")
 	return cmd
 }
 
@@ -273,10 +284,26 @@ func getResource(path string) ([]*unstructured.Unstructured, error) {
 }
 
 // applyPolicyOnResource - function to apply policy on resource
-func applyPolicyOnResource(policy *v1.ClusterPolicy, resource *unstructured.Unstructured, mutatelogPath string, mutatelogPathIsDir bool) error {
+func applyPolicyOnResource(policy *v1.ClusterPolicy, resource *unstructured.Unstructured, mutatelogPath string, mutatelogPathIsDir bool, variables map[string]string) error {
 	fmt.Printf("\n\nApplying Policy %s on Resource %s/%s/%s\n", policy.Name, resource.GetNamespace(), resource.GetKind(), resource.GetName())
 
-	mutateResponse := engine.Mutate(engine.PolicyContext{Policy: *policy, NewResource: *resource})
+	// build context
+	ctx := context.NewContext()
+	for key, value := range variables {
+		startString := ""
+		endString := ""
+		for _, k := range strings.Split(key, ".") {
+			startString += fmt.Sprintf(`{"%s":`, k)
+			endString += `}`
+		}
+
+		midString := fmt.Sprintf(`"%s"`,value)
+		finalString := startString + midString + endString
+		var jsonData = []byte(finalString)
+		ctx.AddJSON(jsonData)
+	}
+
+	mutateResponse := engine.Mutate(engine.PolicyContext{Policy: *policy, NewResource: *resource, Context: ctx})
 	if !mutateResponse.IsSuccessful() {
 		fmt.Printf("\n\nMutation:")
 		fmt.Printf("\nFailed to apply mutation")
@@ -308,7 +335,7 @@ func applyPolicyOnResource(policy *v1.ClusterPolicy, resource *unstructured.Unst
 		}
 	}
 
-	validateResponse := engine.Validate(engine.PolicyContext{Policy: *policy, NewResource: mutateResponse.PatchedResource})
+	validateResponse := engine.Validate(engine.PolicyContext{Policy: *policy, NewResource: mutateResponse.PatchedResource, Context: ctx})
 	if !validateResponse.IsSuccessful() {
 		fmt.Printf("\n\nValidation:")
 		fmt.Printf("\nResource is invalid")

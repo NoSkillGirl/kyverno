@@ -30,6 +30,7 @@ func Mutate(policyContext PolicyContext) (resp response.EngineResponse) {
 	policy := policyContext.Policy
 	patchedResource := policyContext.NewResource
 	ctx := policyContext.Context
+
 	logger := log.Log.WithName("EngineMutate").WithValues("policy", policy.Name, "kind", patchedResource.GetKind(),
 		"namespace", patchedResource.GetNamespace(), "name", patchedResource.GetName())
 

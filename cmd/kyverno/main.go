@@ -44,7 +44,7 @@ var (
 	runValidationInMutatingWebhook string
 	profile                        bool
 	//TODO: this has been added to backward support command line arguments
-	// will be removed in future and the configuration will be set only via configmaps
+	// will be removed in future and the configuration will be set only via config maps
 	filterK8Resources string
 	// User FQDN as CSR CN
 	fqdncn   bool
@@ -247,7 +247,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// WEBHOOK REGISTRATION
+	// WE BHOOK REGISTRATION
 	// - mutating,validatingwebhookconfiguration (Policy)
 	// - verifymutatingwebhookconfiguration (Kyverno Deployment)
 	// resource webhook confgiuration is generated dynamically in the webhook server and policy controller
@@ -266,7 +266,7 @@ func main() {
 	// Sync openAPI definitions of resources
 	openAPISync := openapi.NewCRDSync(client, openAPIController)
 
-	supportMudateValidate := utils.HigherThanKubernetesVersion(client, log.Log, 1, 14, 0)
+	supportMutateValidate := utils.HigherThanKubernetesVersion(client, log.Log, 1, 14, 0)
 
 	// WEBHOOK
 	// - https server to provide endpoints called based on rules defined in Mutating & Validation webhook configuration
@@ -292,7 +292,7 @@ func main() {
 		grgen,
 		rWebhookWatcher,
 		auditHandler,
-		supportMudateValidate,
+		supportMutateValidate,
 		cleanUp,
 		log.Log.WithName("WebhookServer"),
 		openAPIController,

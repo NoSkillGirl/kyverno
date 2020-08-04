@@ -88,6 +88,7 @@ func subValR(ctx context.EvalInterface, valuePattern string, path string) (inter
 		if vars := regex.FindAllString(valuePattern, -1); len(vars) > 0 {
 			for _, variable := range vars {
 				underlyingVariable := strings.ReplaceAll(strings.ReplaceAll(variable, "}}", ""), "{{", "")
+
 				substitutedVar, err := ctx.Query(underlyingVariable)
 				if err != nil {
 					return nil, fmt.Errorf("failed to resolve %v at path %s", underlyingVariable, path)
