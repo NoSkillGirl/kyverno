@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/nirmata/kyverno/pkg/engine/context"
 	"io/ioutil"
+
+	"github.com/nirmata/kyverno/pkg/engine/context"
+
 	//"k8s.io/api/admission/v1beta1"
 	"os"
 	"path/filepath"
+
 	//"strconv"
 	"strings"
 	"time"
@@ -63,10 +66,10 @@ func Command() *cobra.Command {
 				}
 			}()
 
-			kvpairs := strings.Split(strings.Trim(variablesString," "), ",")
+			kvpairs := strings.Split(strings.Trim(variablesString, " "), ",")
 			for _, kvpair := range kvpairs {
 				kvs := strings.Split(strings.Trim(kvpair, " "), "=")
-				variables[strings.Trim(kvs[0]," ")] = strings.Trim(kvs[1], " ")
+				variables[strings.Trim(kvs[0], " ")] = strings.Trim(kvs[1], " ")
 			}
 
 			if len(resourcePaths) == 0 && !cluster {
@@ -129,12 +132,12 @@ func Command() *cobra.Command {
 				return sanitizedError.NewWithError("failed to load resources", err)
 			}
 
-			//newPolicies, err := mutatePolices(policies)
-			//if err != nil {
-			//	return sanitizedError.NewWithError("failed to mutate policy", err)
-			//}
+			newPolicies, err := mutatePolices(policies)
+			if err != nil {
+				return sanitizedError.NewWithError("failed to mutate policy", err)
+			}
 
-			for i, policy := range policies {
+			for i, policy := range newPolicies {
 				for j, resource := range resources {
 					if !(j == 0 && i == 0) {
 						fmt.Printf("\n\n==========================================================================================\n")
@@ -297,7 +300,7 @@ func applyPolicyOnResource(policy *v1.ClusterPolicy, resource *unstructured.Unst
 			endString += `}`
 		}
 
-		midString := fmt.Sprintf(`"%s"`,value)
+		midString := fmt.Sprintf(`"%s"`, value)
 		finalString := startString + midString + endString
 		var jsonData = []byte(finalString)
 		ctx.AddJSON(jsonData)
