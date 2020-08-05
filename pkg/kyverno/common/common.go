@@ -68,10 +68,10 @@ func GetPolicies(paths []string) (policies []*v1.ClusterPolicy, error error) {
 		}
 	}
 
-	for i := range policies {
-		setFalse := false
-		policies[i].Spec.Background = &setFalse
-	}
+	// for i := range policies {
+	// 	setFalse := false
+	// 	policies[i].Spec.Background = &setFalse
+	// }
 
 	return policies, nil
 }

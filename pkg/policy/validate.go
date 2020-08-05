@@ -21,6 +21,7 @@ import (
 // - One operation per rule
 // - ResourceDescription mandatory checks
 func Validate(policyRaw []byte, client *dclient.Client, mock bool, openAPIController *openapi.Controller) error {
+	fmt.Println("------------ validate func -------------")
 	var p kyverno.ClusterPolicy
 	err := json.Unmarshal(policyRaw, &p)
 	if err != nil {
@@ -31,6 +32,7 @@ func Validate(policyRaw []byte, client *dclient.Client, mock bool, openAPIContro
 		return fmt.Errorf("path: spec.%s: %v", path, err)
 	}
 	if p.Spec.Background == nil || (p.Spec.Background != nil && *p.Spec.Background) {
+		fmt.Println("------- inside if condition -------")
 		if err := ContainsVariablesOtherThanObject(p); err != nil {
 			return fmt.Errorf("only variables referring request.object are allowed in background mode. Set spec.background=false to disable background mode for this policy rule. %s ", err)
 		}
