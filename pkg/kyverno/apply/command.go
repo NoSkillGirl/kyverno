@@ -132,8 +132,8 @@ func Command() *cobra.Command {
 			}
 
 			var mutatelogPathIsDir bool
-			if mutateLogPath != "" {
-				spath := strings.Split(mutateLogPath, "/")
+			if mutatelogPath != "" {
+				spath := strings.Split(mutatelogPath, "/")
 				sfileName := strings.Split(spath[len(spath)-1], ".")
 				if sfileName[len(sfileName)-1] == "yml" || sfileName[len(sfileName)-1] == "yaml" {
 					mutatelogPathIsDir = false
@@ -141,7 +141,7 @@ func Command() *cobra.Command {
 					mutatelogPathIsDir = true
 				}
 
-				err = createFileOrFolder(mutateLogPath, mutatelogPathIsDir)
+				err = createFileOrFolder(mutatelogPath, mutatelogPathIsDir)
 				if err != nil {
 					if !sanitizedError.IsErrorSanitized(err) {
 						return sanitizedError.NewWithError("failed to create file/folder.", err)
@@ -156,19 +156,6 @@ func Command() *cobra.Command {
 					return sanitizedError.NewWithError("failed to mutate policies.", err)
 				}
 				return err
-			}
-
-			// need to check this 
-			for _, policy := range policies {
-				err := policy2.Validate(utils.MarshalPolicy(*policy), nil, true, openAPIController)
-				if err != nil {
-					fmt.Printf("Policy %v is not valid: %v\n", policy.Name, err)
-					os.Exit(1)
-				}
-				if common.PolicyHasVariables(*policy) && variablesString == "" && valuesFile == "" {
-					return sanitizedError.NewWithError(fmt.Sprintf("policy %s have variables. pass the values for the variables using set/values_file flag", policy.Name), err)
-				}
-
 			}
 
 			var dClient *client.Client
@@ -215,9 +202,9 @@ func Command() *cobra.Command {
 					continue
 				}
 
-				if common.PolicyHasVariables(*policy) {
+				if common.PolicyHasVariables(*policy) && variablesString == "" && valuesFile == "" {
 					rc.skip += len(resources)
-					fmt.Printf("\nskipping policy %s as policies with variables are not supported\n", policy.Name)
+					sanitizedError.NewWithError(fmt.Sprintf("policy %s have variables. pass the values for the variables using set/values_file flag", policy.Name), err)
 					continue
 				}
 
@@ -234,10 +221,6 @@ func Command() *cobra.Command {
 					// need to check this
 					if common.PolicyHasVariables(*policy) && len(thisPolicyResouceValues) == 0 {
 						return sanitizedError.NewWithError(fmt.Sprintf("policy %s have variables. pass the values for the variables using set/values_file flag", policy.Name), err)
-					}
-
-					if !(j == 0 && i == 0) {
-						fmt.Printf("\n\n==========================================================================================\n")
 					}
 
 					applyPolicyOnResource(policy, resource, mutatelogPath, mutatelogPathIsDir, thisPolicyResouceValues, rc)
@@ -478,6 +461,7 @@ func applyPolicyOnResource(policy *v1.ClusterPolicy, resource *unstructured.Unst
 	} else {
 		rc.pass++
 	}
+	return nil
 }
 
 // mutatePolicies - function to apply mutation on policies
