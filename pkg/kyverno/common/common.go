@@ -9,9 +9,9 @@ import (
 	"github.com/go-openapi/spec"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-	openapi_v2 "github.com/googleapis/gnostic/OpenAPIv2"
-	"github.com/googleapis/gnostic/compiler"
-	yaml_v2 "gopkg.in/yaml.v2"
+	//openapi_v2 "github.com/googleapis/gnostic/OpenAPIv2"
+	//"github.com/googleapis/gnostic/compiler"
+	//yaml_v2 "gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -196,14 +196,12 @@ func MutatePolicy(policy *v1.ClusterPolicy, logger logr.Logger) (*v1.ClusterPoli
 	return &p, nil
 }
 
-<<<<<<< HEAD
 // PolicyHasVariables - check for variables in policy
 func PolicyHasVariables(policy v1.ClusterPolicy) bool {
 	policyRaw, _ := json.Marshal(policy)
 	regex := regexp.MustCompile(`\{\{([^{}]*)\}\}`)
 	return len(regex.FindAllStringSubmatch(string(policyRaw), -1)) > 0
 }
-=======
 
 func ValidatePolicyAgainstCrd(policy *v1.ClusterPolicy, path string) error {
 	log := log.Log
@@ -263,6 +261,7 @@ func ValidatePolicyAgainstCrd(policy *v1.ClusterPolicy, path string) error {
 
 	openV3schema := crdDefinitionPrior.Spec.Validation.OpenAPIV3Schema
 	crdName := crdDefinitionPrior.Spec.Names.Kind
+	fmt.Println(crdName)
 
 	if openV3schema == nil {
 		_ = json.Unmarshal(crdRaw, &crdDefinitionNew)
@@ -291,6 +290,7 @@ func ValidatePolicyAgainstCrd(policy *v1.ClusterPolicy, path string) error {
 	_ = json.Unmarshal(schemaRaw, schema)
 
 	input := map[string]interface{}{}
+	fmt.Println(input)
 
 	// JSON data to validate
 	//inputJSON := `{"name": "Ivan","address-1": "sesame street"}`
@@ -360,4 +360,3 @@ func addingDefaultFieldsToSchema(schemaRaw []byte) ([]byte, error) {
 
 	return schemaWithDefaultFields, nil
 }
->>>>>>> 3be7ace6... validation of policy against crd
