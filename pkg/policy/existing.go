@@ -185,7 +185,7 @@ func getResourcesPerNamespace(kind string, client *client.Client, namespace stri
 			}
 		}
 		// Skip the filtered resources
-		if configHandler.ToFilter(r.GetKind(), r.GetNamespace(), r.GetName()) {
+		if configHandler.ToFilter(r.GetKind(), r.GetNamespace(), r.GetName(), r.GetAPIVersion()) {
 			continue
 		}
 
@@ -280,7 +280,7 @@ func excludeResources(included map[string]unstructured.Unstructured, exclude kyv
 			excludeEval = append(excludeEval, ret)
 		}
 		// exclude the filtered resources
-		if configHandler.ToFilter(resource.GetKind(), resource.GetNamespace(), resource.GetName()) {
+		if configHandler.ToFilter(resource.GetKind(), resource.GetNamespace(), resource.GetName(), resource.GetAPIVersion()) {
 			delete(included, uid)
 			continue
 		}

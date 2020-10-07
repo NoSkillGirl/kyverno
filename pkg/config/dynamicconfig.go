@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"reflect"
 	"regexp"
@@ -45,14 +46,30 @@ type ConfigData struct {
 }
 
 // ToFilter checks if the given resource is set to be filtered in the configuration
-func (cd *ConfigData) ToFilter(kind, namespace, name string) bool {
+func (cd *ConfigData) ToFilter(kind, namespace, name, apiVersion string) bool {
 	cd.mux.RLock()
 	defer cd.mux.RUnlock()
+
+	apiGroup := ""
+	if apiVersion != "" {
+		splitAPIVersion := strings.Split(apiVersion, "/")
+		if len(splitAPIVersion) == 2 {
+			apiGroup = splitAPIVersion[0]
+		}
+	}
+
+	fmt.Println("*****************************************")
+	fmt.Println(cd)
+	fmt.Println(cd.filters)
+	fmt.Println("kind: ", kind, "\n namespace: ", namespace, "\n name: ", name, "\n apiVersion: ", apiVersion)
 	for _, f := range cd.filters {
-		if wildcard.Match(f.Kind, kind) && wildcard.Match(f.Namespace, namespace) && wildcard.Match(f.Name, name) {
+		fmt.Println("f.kind: ", f.Kind, "\n f.namespace: ", f.Namespace, "\n f.name: ", f.Name, "\n f.apiGroup: ", f.APIGroup)
+
+		if wildcard.Match(f.Kind, kind) && wildcard.Match(f.Namespace, namespace) && wildcard.Match(f.Name, name) && wildcard.Match(f.APIGroup, apiGroup) {
 			return true
 		}
 	}
+	fmt.Println("*****************************************")
 	return false
 }
 
@@ -79,7 +96,7 @@ func (cd *ConfigData) GetExcludeUsername() []string {
 
 // Interface to be used by consumer to check filters
 type Interface interface {
-	ToFilter(kind, namespace, name string) bool
+	ToFilter(kind, namespace, name, apiVersion string) bool
 	GetExcludeGroupRole() []string
 	GetExcludeUsername() []string
 	RestrictDevelopmentUsername() []string
@@ -278,6 +295,7 @@ type k8Resource struct {
 	Kind      string //TODO: as we currently only support one GVK version, we use the kind only. But if we support multiple GVK, then GV need to be added
 	Namespace string
 	Name      string
+	APIGroup  string
 }
 
 //ParseKinds parses the kinds if a single string contains comma separated kinds
@@ -294,6 +312,9 @@ func parseKinds(list string) []k8Resource {
 		//TODO: wildcards for namespace and name
 		if len(elements) == 0 {
 			continue
+		}
+		if len(elements) == 4 {
+			resource = k8Resource{Kind: elements[0], Namespace: elements[1], Name: elements[2], APIGroup: elements[3]}
 		}
 		if len(elements) == 3 {
 			resource = k8Resource{Kind: elements[0], Namespace: elements[1], Name: elements[2]}

@@ -241,7 +241,7 @@ func (ws *WebhookServer) handlerFunc(handler func(request *v1beta1.AdmissionRequ
 
 		// Do not process the admission requests for kinds that are in filterKinds for filtering
 		request := admissionReview.Request
-		if filter && ws.configHandler.ToFilter(request.Kind.Kind, request.Namespace, request.Name) {
+		if filter && ws.configHandler.ToFilter(request.Kind.Kind, request.Namespace, request.Name, request.Resource.Group) {
 			writeResponse(rw, admissionReview)
 			return
 		}
