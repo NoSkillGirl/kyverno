@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -377,8 +378,10 @@ func (ws *WebhookServer) ResourceMutation(request *v1beta1.AdmissionRequest) *v1
 
 func (ws *WebhookServer) resourceValidation(request *v1beta1.AdmissionRequest) *v1beta1.AdmissionResponse {
 	logger := ws.log.WithName("Validate").WithValues("uid", request.UID, "kind", request.Kind.Kind, "namespace", request.Namespace, "name", request.Name, "operation", request.Operation)
+	var wg sync.WaitGroup
 	if request.Operation == v1beta1.Delete {
-		go ws.handleUpdateAndDelete(request)
+		wg.Add(1)
+		go ws.handleUpdateAndDelete(request, &wg)
 	}
 
 	if !ws.supportMutateValidate {
@@ -455,6 +458,7 @@ func (ws *WebhookServer) resourceValidation(request *v1beta1.AdmissionRequest) *
 	}
 
 	ok, msg := HandleValidation(request, policies, nil, ctx, userRequestInfo, ws.statusListener, ws.eventGen, ws.prGenerator, ws.log, ws.configHandler, ws.resCache)
+	wg.Wait()
 	if !ok {
 		logger.Info("admission request denied")
 		return &v1beta1.AdmissionResponse{

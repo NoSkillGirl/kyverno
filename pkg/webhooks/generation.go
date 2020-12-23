@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gardener/controller-manager-library/pkg/logger"
@@ -88,7 +89,8 @@ func (ws *WebhookServer) HandleGenerate(request *v1beta1.AdmissionRequest, polic
 }
 
 //HandleUpdateAndDelete handles admission-requests for update and delete
-func (ws *WebhookServer) handleUpdateAndDelete(request *v1beta1.AdmissionRequest) {
+func (ws *WebhookServer) handleUpdateAndDelete(request *v1beta1.AdmissionRequest, wg *sync.WaitGroup) {
+	defer wg.Done()
 	resource, err := enginutils.ConvertToUnstructured(request.OldObject.Raw)
 	if err != nil {
 		logger.Error(err, "failed to convert object resource to unstructured format")
