@@ -39,10 +39,16 @@ func ValidateResourceWithPattern(log logr.Logger, resource, pattern interface{})
 // and calls corresponding handler
 // Pattern tree and resource tree can have different structure. In this case validation fails
 func validateResourceElement(log logr.Logger, resourceElement, patternElement, originPattern interface{}, path string, ac *common.AnchorKey) (string, error) {
+	fmt.Println("\n-----------------validateResourceElement------------------")
+	fmt.Println("resourceElement: ", resourceElement)
+	fmt.Println("patternElement: ", patternElement)
+	fmt.Println("originPattern: ", originPattern)
+	fmt.Println("path: ", path)
 	var err error
 	switch typedPatternElement := patternElement.(type) {
 	// map
 	case map[string]interface{}:
+		fmt.Println("---map[string]interface{}")
 		typedResourceElement, ok := resourceElement.(map[string]interface{})
 		if !ok {
 			log.V(4).Info("Pattern and resource have different structures.", "path", path, "expected", fmt.Sprintf("%T", patternElement), "current", fmt.Sprintf("%T", resourceElement))
@@ -53,6 +59,7 @@ func validateResourceElement(log logr.Logger, resourceElement, patternElement, o
 		return validateMap(log, typedResourceElement, typedPatternElement, originPattern, path, ac)
 	// array
 	case []interface{}:
+		fmt.Println("---[]interface{}")
 		typedResourceElement, ok := resourceElement.([]interface{})
 		if !ok {
 			log.V(4).Info("Pattern and resource have different structures.", "path", path, "expected", fmt.Sprintf("%T", patternElement), "current", fmt.Sprintf("%T", resourceElement))
@@ -61,6 +68,7 @@ func validateResourceElement(log logr.Logger, resourceElement, patternElement, o
 		return validateArray(log, typedResourceElement, typedPatternElement, originPattern, path, ac)
 	// elementary values
 	case string, float64, int, int64, bool, nil:
+		fmt.Println("---string, float64, int, int64, bool, nil")
 		/*Analyze pattern */
 		if checkedPattern := reflect.ValueOf(patternElement); checkedPattern.Kind() == reflect.String {
 			if isStringIsReference(checkedPattern.String()) { //check for $ anchor
@@ -70,12 +78,13 @@ func validateResourceElement(log logr.Logger, resourceElement, patternElement, o
 				}
 			}
 		}
-
+		fmt.Println("1-----------")
 		if !ValidateValueWithPattern(log, resourceElement, patternElement) {
 			return path, fmt.Errorf("Validation rule failed at '%s' to validate value '%v' with pattern '%v'", path, resourceElement, patternElement)
 		}
 
 	default:
+		fmt.Println("---default")
 		log.V(4).Info("Pattern contains unknown type", "path", path, "current", fmt.Sprintf("%T", patternElement))
 		return path, fmt.Errorf("Validation rule failed at '%s', pattern contains unknown type", path)
 	}
@@ -119,6 +128,11 @@ func combineMap(v interface{}) {
 // If validateResourceElement detects map element inside resource and pattern trees, it goes to validateMap
 // For each element of the map we must detect the type again, so we pass these elements to validateResourceElement
 func validateMap(log logr.Logger, resourceMap, patternMap map[string]interface{}, origPattern interface{}, path string, ac *common.AnchorKey) (string, error) {
+	fmt.Println("\n------------------validateMap----------------")
+	fmt.Println("resourceMap: ", resourceMap)
+	fmt.Println("patternMap: ", patternMap)
+	fmt.Println("origPattern: ", origPattern)
+	fmt.Println("path: ", path)
 	patternKey = nil
 	combineOriginalPatternMap = nil
 	arrayOfCombineOriginalPatternMap = nil
@@ -128,17 +142,10 @@ func validateMap(log logr.Logger, resourceMap, patternMap map[string]interface{}
 	// Phase 1 : Evaluate all the anchors
 	// Phase 2 : Evaluate non-anchors
 	anchors, resources := anchor.GetAnchorsResourcesFromMap(patternMap)
+	fmt.Println("anchors: ", anchors, "\nresources: ", resources)
 	// Evaluate anchors
 	for key, patternElement := range anchors {
 		if commonAnchors.IsExistenceAnchor(key) {
-			// fmt.Printf("type %T!\n", patternElement)
-			// typedPatternElement, ok := patternElement.([]interface{})
-			// if !ok {
-			// 	fmt.Println("type %T!\n", typedPatternElement)
-			// }
-			// for _, v := range typedPatternElement {
-			// 	fmt.Println("----typedPatternElement: ", v)
-			// }
 			typedOrigPattern, ok := origPattern.(map[string]interface{})
 			if !ok {
 				fmt.Println("---type %T!\n", typedOrigPattern)
@@ -152,6 +159,8 @@ func validateMap(log logr.Logger, resourceMap, patternMap map[string]interface{}
 		}
 
 		for _, val := range arrayOfCombineOriginalPatternMap {
+			fmt.Println("!!!!!!resourceMap: ", resourceMap)
+			fmt.Println("val: ", val)
 			handler := anchor.CreateElementHandler(key, patternElement, path)
 			handlerPath, err := handler.Handle(validateResourceElement, resourceMap, val, ac)
 			if err != nil {
@@ -171,6 +180,8 @@ func validateMap(log logr.Logger, resourceMap, patternMap map[string]interface{}
 	sortedResourceKeys := getSortedNestedAnchorResource(resources)
 	for e := sortedResourceKeys.Front(); e != nil; e = e.Next() {
 		key := e.Value.(string)
+		fmt.Println("=====resourceMap: ", resourceMap)
+		fmt.Println("origPattern: ", origPattern)
 		handler := anchor.CreateElementHandler(key, resources[key], path)
 		handlerPath, err := handler.Handle(validateResourceElement, resourceMap, origPattern, ac)
 		if err != nil {
