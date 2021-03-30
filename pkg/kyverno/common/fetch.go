@@ -158,7 +158,7 @@ func GetResource(resourceBytes []byte) ([]*unstructured.Unstructured, error) {
 	}
 
 	for _, resourceYaml := range files {
-		resource, err := convertResourceToUnstructured(resourceYaml)
+		resource, err := ConvertResourceToUnstructured(resourceYaml)
 		if err != nil {
 			getErrString = getErrString + err.Error() + "\n"
 		}
@@ -230,7 +230,7 @@ func getFileBytes(path string) ([]byte, error) {
 	return file, err
 }
 
-func convertResourceToUnstructured(resourceYaml []byte) (*unstructured.Unstructured, error) {
+func ConvertResourceToUnstructured(resourceYaml []byte) (*unstructured.Unstructured, error) {
 	decode := scheme.Codecs.UniversalDeserializer().Decode
 	_, metaData, err := decode(resourceYaml, nil, nil)
 	if err != nil {

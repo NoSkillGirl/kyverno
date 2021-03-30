@@ -88,7 +88,7 @@ func (o *Controller) ValidateResource(patchedResource unstructured.Unstructured,
 	schema := o.models.LookupModel(kind)
 	if schema == nil {
 		// Check if kind is a CRD
-		schema, err = o.getCRDSchema(kind)
+		schema, err = o.GetCRDSchema(kind)
 		if err != nil || schema == nil {
 			return fmt.Errorf("pre-validation: couldn't find model %s, err: %v", kind, err)
 		}
@@ -173,7 +173,7 @@ func getSchemaDocument() (*openapiv2.Document, error) {
 }
 
 // For crd, we do not store definition in document
-func (o *Controller) getCRDSchema(kind string) (proto.Schema, error) {
+func (o *Controller) GetCRDSchema(kind string) (proto.Schema, error) {
 	if kind == "" {
 		return nil, errors.New("invalid kind")
 	}

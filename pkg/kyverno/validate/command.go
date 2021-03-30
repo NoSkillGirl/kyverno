@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	v1 "github.com/kyverno/kyverno/pkg/api/kyverno/v1"
 	"github.com/kyverno/kyverno/pkg/kyverno/common"
@@ -14,6 +15,7 @@ import (
 	policy2 "github.com/kyverno/kyverno/pkg/policy"
 	"github.com/kyverno/kyverno/pkg/utils"
 	"github.com/spf13/cobra"
+	"k8s.io/kube-openapi/pkg/util/proto/validation"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/yaml"
 )
@@ -91,6 +93,42 @@ func Command() *cobra.Command {
 				for _, crd := range crds {
 					openAPIController.ParseCRD(*crd)
 				}
+			}
+
+			// convert these policies into policybytes
+			// convert them to unstructured
+			// validate according to crd
+			kind := "ClusterPolicy"
+			for _, policy := range policies {
+				bytes, err := yaml.Marshal(policy)
+				if err != nil {
+					fmt.Println("error occured while converting policy into bytes")
+					fmt.Println(err)
+				}
+
+				schema, err := openAPIController.GetCRDSchema(kind)
+				if err != nil || schema == nil {
+					fmt.Println("error occured while getting schema from openAPIController")
+					fmt.Println(fmt.Errorf("pre-validation: couldn't find model %s, err: %v", kind, err))
+				}
+
+				unstructuredPolicy, err := common.ConvertResourceToUnstructured(bytes)
+				if err != nil {
+					fmt.Println("error occured while converting policy into unstructured")
+					fmt.Println(err)
+				}
+
+				delete(unstructuredPolicy.Object, "kind")
+
+				if errs := validation.ValidateModel(unstructuredPolicy.UnstructuredContent(), schema, kind); len(errs) > 0 {
+					var errorMessages []string
+					for i := range errs {
+						errorMessages = append(errorMessages, errs[i].Error())
+					}
+
+					fmt.Println(fmt.Errorf(strings.Join(errorMessages, "\n\n")))
+				}
+
 			}
 
 			invalidPolicyFound := false
