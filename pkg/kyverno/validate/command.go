@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	v1 "github.com/kyverno/kyverno/pkg/api/kyverno/v1"
+	engineutils "github.com/kyverno/kyverno/pkg/engine/utils"
 	"github.com/kyverno/kyverno/pkg/kyverno/common"
 	sanitizederror "github.com/kyverno/kyverno/pkg/kyverno/sanitizedError"
 	"github.com/kyverno/kyverno/pkg/openapi"
@@ -98,9 +99,10 @@ func Command() *cobra.Command {
 			// convert these policies into policybytes
 			// convert them to unstructured
 			// validate according to crd
-			kind := "ClusterPolicy"
+			// kind := "io.k8s.api.auditregistration.v1alpha1.ClusterPolicy"
+			kind := "Policy"
 			for _, policy := range policies {
-				bytes, err := yaml.Marshal(policy)
+				bytes, err := json.Marshal(policy)
 				if err != nil {
 					fmt.Println("error occured while converting policy into bytes")
 					fmt.Println(err)
@@ -112,7 +114,8 @@ func Command() *cobra.Command {
 					fmt.Println(fmt.Errorf("pre-validation: couldn't find model %s, err: %v", kind, err))
 				}
 
-				unstructuredPolicy, err := common.ConvertResourceToUnstructured(bytes)
+				unstructuredPolicy, err := engineutils.ConvertToUnstructured(bytes)
+				// unstructuredPolicy, err := common.ConvertResourceToUnstructured(bytes)
 				if err != nil {
 					fmt.Println("error occured while converting policy into unstructured")
 					fmt.Println(err)

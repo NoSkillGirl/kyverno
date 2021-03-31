@@ -160,7 +160,11 @@ func (o *Controller) ParseCRD(crd unstructured.Unstructured) {
 	}
 
 	o.crdList = append(o.crdList, crdName)
-	o.kindToDefinitionName.Set(crdName, crdName)
+	if crdName == "Policy" {
+		o.kindToDefinitionName.Set(crdName, "io.k8s.api.auditregistration.v1alpha1.Policy")
+	} else {
+		o.kindToDefinitionName.Set(crdName, crdName)
+	}
 	o.definitions.Set(crdName, parsedSchema)
 }
 
