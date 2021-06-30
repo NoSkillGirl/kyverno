@@ -1047,9 +1047,9 @@ func Test_Source_Resource_Update_Replication(t *testing.T) {
 
 func Test_Generate_Policy_Deletion_for_Clone(t *testing.T) {
 	RegisterTestingT(t)
-	// if os.Getenv("E2E") == "" {
-	// 	t.Skip("Skipping E2E Test")
-	// }
+	if os.Getenv("E2E") == "" {
+		t.Skip("Skipping E2E Test")
+	}
 	// Generate E2E Client ==================
 	e2eClient, err := e2e.NewE2EClient()
 	Expect(err).To(BeNil())
@@ -1095,26 +1095,26 @@ func Test_Generate_Policy_Deletion_for_Clone(t *testing.T) {
 
 		// ======== Create Generate Policy =============
 		By(fmt.Sprintf("\nCreating Generate Policy in %s", clPolNS))
-		// loc, _ := time.LoadLocation("UTC")
-		// timeBeforePolicyCreation := time.Now().In(loc)
+		loc, _ := time.LoadLocation("UTC")
+		timeBeforePolicyCreation := time.Now().In(loc)
 		_, err = e2eClient.CreateNamespacedResourceYaml(clPolGVR, clPolNS, tests.Data)
 		Expect(err).NotTo(HaveOccurred())
 		// ============================================
 
 		// check policy in metrics
-		// policySyncBool := false
-		// e2e.GetWithRetry(time.Duration(2), 10, func() error {
-		// 	metricsString, err := commonE2E.CallMetrics()
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// 	policySyncBool, err = commonE2E.ProcessMetrics(metricsString, tests.PolicyName, timeBeforePolicyCreation)
-		// 	if policySyncBool == false || err != nil {
-		// 		return errors.New("policy not created")
-		// 	}
-		// 	return nil
-		// })
-		// Expect(policySyncBool).To(Equal(true))
+		policySyncBool := false
+		e2e.GetWithRetry(time.Duration(2), 10, func() error {
+			metricsString, err := commonE2E.CallMetrics()
+			if err != nil {
+				return err
+			}
+			policySyncBool, err = commonE2E.ProcessMetrics(metricsString, tests.PolicyName, timeBeforePolicyCreation)
+			if policySyncBool == false || err != nil {
+				return errors.New("policy not created")
+			}
+			return nil
+		})
+		Expect(policySyncBool).To(Equal(true))
 
 		// ======= Create Namespace ==================
 		By(fmt.Sprintf("Creating Namespace which triggers generate %s", clPolNS))
@@ -1167,6 +1167,34 @@ func Test_Generate_Policy_Deletion_for_Clone(t *testing.T) {
 		_, err = e2eClient.GetNamespacedResource(cmGVR, tests.ResourceNamespace, tests.ConfigMapName)
 		Expect(err).NotTo(HaveOccurred())
 		// ===========================================
+
+		// test: the generated resource is not updated if the source resource is updated
+		// ======= Update Configmap in default Namespace ========
+		By(fmt.Sprintf("Updating Source Resource(Configmap) in Clone Namespace : %s", tests.CloneNamespace))
+
+		// Get the configmap from default namespace
+		sourceRes, err := e2eClient.GetNamespacedResource(cmGVR, tests.CloneNamespace, tests.ConfigMapName)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(sourceRes.GetName()).To(Equal(tests.ConfigMapName))
+
+		element, _, err := unstructured.NestedMap(sourceRes.UnstructuredContent(), "data")
+		Expect(err).NotTo(HaveOccurred())
+		element["initial_lives"] = "5"
+
+		unstructured.SetNestedMap(sourceRes.UnstructuredContent(), element, "data")
+		_, err = e2eClient.UpdateNamespacedResource(cmGVR, tests.CloneNamespace, sourceRes)
+		Expect(err).NotTo(HaveOccurred())
+		// ============================================
+
+		// ======= Verifying Configmap Data is Not Replicated in Generated Resource ========
+		By("Verifying Configmap Data is Not Replicated in Generated Resource")
+
+		updatedGenRes, err := e2eClient.GetNamespacedResource(cmGVR, tests.ResourceNamespace, tests.ConfigMapName)
+		Expect(err).NotTo(HaveOccurred())
+		element, _, err = unstructured.NestedMap(updatedGenRes.UnstructuredContent(), "data")
+		Expect(err).NotTo(HaveOccurred())
+		Expect(element["initial_lives"]).To(Equal("2"))
+		// ============================================
 
 		// test: the generated resource is not deleted after the source is deleted
 		//=========== Delete the Clone Source Resource ============
